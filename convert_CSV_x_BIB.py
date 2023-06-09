@@ -27,12 +27,13 @@ def generatedRoute():
     ruta = 'bibtexArtsQuartil/{0}/'.format(today)
     # Preguntamos si ya hay una carpeta creada ese día
     if not os.path.isdir(ruta):
-        # Creamos una carpeta para guardar los archivos con la fecha actual
+        # Creamos una carpeta para guardar los archivos con la fecha actual y una carpeta predeterminada dentro
         ruta = ruta + '1'
         os.makedirs(ruta)
         print(ruta)
         return ruta
     else:
+        # Aquí asignamos un número dependiendo de cuantas carpetas se crearon ese día para crear la carpeta
         numDir = len(os.listdir(ruta)) + 1
         ruta = ruta + '{0}'.format(numDir)
         os.makedirs(ruta)
@@ -49,9 +50,9 @@ def saveFileBIB(numFile):
         bibFile.write(writer.write(db))
 
 
+# Genero la ruta de la carpeta donde se guardaran los archivso
+route = generatedRoute()
 # Aquí tomo los numero del 1 al 4
 # para generar los BIB de los 4 quartiles al mismo tiempo
-
-route = generatedRoute()
 for n in range(1, 5):
     convertCSVxBIB(n)
