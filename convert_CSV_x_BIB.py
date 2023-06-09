@@ -20,26 +20,38 @@ def convertCSVxBIB(numFile):
         saveFileBIB(numFile)
 
 
+def generatedRoute():
+    # Generamos una variable de la fecha actual
+    today = date.today().strftime("%d_%m_%Y")
+    # Creamos una ruta con esa variable de fecha y la carpeta donde se guardarán los archivos
+    ruta = 'bibtexArtsQuartil/{0}/'.format(today)
+    # Preguntamos si ya hay una carpeta creada ese día
+    if not os.path.isdir(ruta):
+        # Creamos una carpeta para guardar los archivos con la fecha actual
+        ruta = ruta + '1'
+        os.makedirs(ruta)
+        print(ruta)
+        return ruta
+    else:
+        numDir = len(os.listdir(ruta)) + 1
+        ruta = ruta + '{0}'.format(numDir)
+        os.makedirs(ruta)
+        return ruta
+
+
 # Guardado del archivo CSV a BIB
 def saveFileBIB(numFile):
     # Itero el objeto db.entries para ir añadiendo al archivo por cada iteración
     writer = BibTexWriter()
     writer.indent = '\n'
-    for row in db.entries:
-        # Generamos una variable de la fecha actual
-        today = date.today().strftime("%d_%m_%Y")
-        # Creamos una ruta con esa variable de fecha y la carpeta donde se guardarán los archivos
-        ruta = 'bibtexArtsQuartil/{0}/1'.format(today)
-        # Preguntamos si ya hay una carpeta creada ese día
-        if not os.path.isdir(ruta):
-            # Creamos una carpeta para guardar los archivos con la fecha actual
-            os.makedirs(ruta)
 
-        with open("{0}/bibtexArtsQ{1}.bib".format(ruta, numFile), 'w', encoding='utf8') as bibFile:
-            bibFile.write(writer.write(db))
+    with open("{0}/bibtexArtsQ{1}.bib".format(route, numFile), 'w', encoding='utf8') as bibFile:
+        bibFile.write(writer.write(db))
 
 
-# Aquí tomo los el numero del 1 al 4
+# Aquí tomo los numero del 1 al 4
 # para generar los BIB de los 4 quartiles al mismo tiempo
+
+route = generatedRoute()
 for n in range(1, 5):
     convertCSVxBIB(n)
