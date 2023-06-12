@@ -39,6 +39,7 @@ with open('merged.bib', encoding="utf8") as bibtex_file:
 
 with open('merged.bib', encoding="utf8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
+
 for fuente in bib_database.entries:
     addEntry(list(fuente.keys()))
 arcEntry = open("entryList.csv", "w")

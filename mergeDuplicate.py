@@ -147,12 +147,12 @@ with open('wos.bib', encoding="utf8") as bibtex_file:
 print('WOS: {0} entries in file 1'.format(len(entries2)))
 
 # Now, let see how many duplicates there are. It is easy to use sets for this.
-
 entry1_keys = set([entry['title'] for entry in entries1])
 entry2_keys = set([entry['title'] for entry in entries2])
 
 duplicates = entry1_keys & entry2_keys
 print('There are {0} duplicates'.format(len(duplicates)))
+
 
 for entry in entries1:
     with open('merged.bib', 'a', encoding="utf8") as f:
@@ -173,6 +173,11 @@ print("vacias : ", vacias)
 print("kwvacia : ", kwvacia)
 print("kwpvacia: ", kwpvacia)
 print("Akwvacia: ", akwvacia)
+
+for entry in entries1:
+    with open('merged.bib', 'a', encoding="utf8") as f:
+        f.write(format_bibtex_entry(entry))
+
 
 with open('merged.bib', encoding="utf8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
@@ -207,3 +212,25 @@ listKeywordsAuthor.write("keywords;count;" + chr(13))
 for keywords in listKwa:
     listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
 listKeywordsAuthor.close()
+
+
+# with open('unido1.bib', encoding="utf8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_file)
+#     entries1 = bib_database.get_entry_list()
+# print('Artículos: {0} entries in file'.format(len(entries1)))
+#
+# cont=1
+# for entry in entries1:
+#
+#     # check if the count of sweet is > 1 (repeating item)
+#     if entries1.count(entry['title']) > 1:
+#         # if True, remove the first occurrence of sweet
+#         entries1.remove(entry)
+#         print(cont, ",", entry['title'])
+#         cont += 1
+#
+# # print(entries1)
+#
+#
+# entry1_keys = set([entry['title'] for entry in entries1])
+# print('Hay {0} archivos que se pueden extraer'.format((len(entries1)-len(entry1_keys))))
