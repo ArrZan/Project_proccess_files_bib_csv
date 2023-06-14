@@ -135,57 +135,77 @@ def format_bibtex_entry(entry):
 
 if os.path.exists('merged.bib'):
     os.unlink('merged.bib')
+#
+# with open('scopus.bib', encoding="utf8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_file)
+#     entries1 = bib_database.get_entry_list()
+# print('SCOPUS: {0} entries in file 1'.format(len(entries1)))
+#
+# with open('wos.bib', encoding="utf8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_file)
+#     entries2 = bib_database.get_entry_list()
+# print('WOS: {0} entries in file 1'.format(len(entries2)))
+#
+# # Now, let see how many duplicates there are. It is easy to use sets for this.
+# entry1_keys = set([entry['title'] for entry in entries1])
+# entry2_keys = set([entry['title'] for entry in entries2])
+#
+# duplicates = entry1_keys & entry2_keys
+# print('There are {0} duplicates'.format(len(duplicates)))
+# print(duplicates)
+#
+# for entry in entries1:
+#     with open('merged.bib', 'a', encoding="utf8") as f:
+#         f.write(format_bibtex_entry(entry))
+#
+# # store keys to check for duplicates
+# entry1_keys = [entry['title'] for entry in entries1]
+#
+# for entry in entries2:
+#     if not entry['title'] in entry1_keys:
+#         with open('merged.bib', 'a', encoding="utf8") as f:
+#             try:
+#                 f.write(format_bibtex_entry(entry))
+#             except:
+#                 print("An exception occurred")
+#
+# print("vacias : ", vacias)
+# print("kwvacia : ", kwvacia)
+# print("kwpvacia: ", kwpvacia)
+# print("Akwvacia: ", akwvacia)
+#
+# with open('merged.bib', encoding="utf8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_file)
+#     entries2 = bib_database.get_entry_list()
+# print('MERGED: {0} entries in file 1'.format(len(entries2)))
 
-with open('scopus.bib', encoding="utf8") as bibtex_file:
+# /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo
+with open('unidos.bib', encoding="utf-8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
     entries1 = bib_database.get_entry_list()
-print('SCOPUS: {0} entries in file 1'.format(len(entries1)))
+print('Artículos: {0} entries in file'.format(len(entries1)))
 
-with open('wos.bib', encoding="utf8") as bibtex_file:
-    bib_database = bibtexparser.load(bibtex_file)
-    entries2 = bib_database.get_entry_list()
-print('WOS: {0} entries in file 1'.format(len(entries2)))
-
-# Now, let see how many duplicates there are. It is easy to use sets for this.
-entry1_keys = set([entry['title'] for entry in entries1])
-entry2_keys = set([entry['title'] for entry in entries2])
-
-duplicates = entry1_keys & entry2_keys
-print('There are {0} duplicates'.format(len(duplicates)))
-
-
+# Se setea los títulos del archivo, quitando los repetidos
+titleEnt = list(set([entry['title'].upper() for entry in entries1]))
+# Cantidad de titulos seteados
+print(len(titleEnt))
+# Se va iterando el archivo original
 for entry in entries1:
-    with open('merged.bib', 'a', encoding="utf8") as f:
-        f.write(format_bibtex_entry(entry))
-
-# store keys to check for duplicates
-entry1_keys = [entry['title'] for entry in entries1]
-
-for entry in entries2:
-    if not entry['title'] in entry1_keys:
+    # Preguntamos por el titulo de la iteración si está en los titulos seteados, si está, se lo agrega al archivo merged
+    if entry['title'].upper() in titleEnt:
         with open('merged.bib', 'a', encoding="utf8") as f:
-            try:
-                f.write(format_bibtex_entry(entry))
-            except:
-                print("An exception occurred")
+            f.write(format_bibtex_entry(entry))
 
-print("vacias : ", vacias)
-print("kwvacia : ", kwvacia)
-print("kwpvacia: ", kwpvacia)
-print("Akwvacia: ", akwvacia)
+        # y se lo quita de los titulos seteados
+        titleEnt.remove(entry['title'].upper())
 
-for entry in entries1:
-    with open('merged.bib', 'a', encoding="utf8") as f:
-        f.write(format_bibtex_entry(entry))
-
-
+# Se vuelve a abrir el archivo para contar los archivos que quedaron
 with open('merged.bib', encoding="utf8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
-    entries2 = bib_database.get_entry_list()
-print('MERGED: {0} entries in file 1'.format(len(entries2)))
+    merged = bib_database.get_entry_list()
+print('MERGED: {0} entries in file 1'.format(len(merged)))
 
-
-#  Aquí reunimos todas las palabras claves
+# /////////////////////////////////////////////// Aquí reunimos todas las palabras claves
 keywordsAll = open("keywordsAllList.csv", "w")
 keywordsAll.write("keywords;count;" + chr(13))
 for keywords in listaKeys:
@@ -212,25 +232,3 @@ listKeywordsAuthor.write("keywords;count;" + chr(13))
 for keywords in listKwa:
     listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
 listKeywordsAuthor.close()
-
-
-# with open('unido1.bib', encoding="utf8") as bibtex_file:
-#     bib_database = bibtexparser.load(bibtex_file)
-#     entries1 = bib_database.get_entry_list()
-# print('Artículos: {0} entries in file'.format(len(entries1)))
-#
-# cont=1
-# for entry in entries1:
-#
-#     # check if the count of sweet is > 1 (repeating item)
-#     if entries1.count(entry['title']) > 1:
-#         # if True, remove the first occurrence of sweet
-#         entries1.remove(entry)
-#         print(cont, ",", entry['title'])
-#         cont += 1
-#
-# # print(entries1)
-#
-#
-# entry1_keys = set([entry['title'] for entry in entries1])
-# print('Hay {0} archivos que se pueden extraer'.format((len(entries1)-len(entry1_keys))))

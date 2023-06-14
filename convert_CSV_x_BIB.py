@@ -50,7 +50,7 @@ def saveFileBIB(numFile):
         bibFile.write(writer.write(db))
 
 
-# Genero la ruta de la carpeta donde se guardaran los archivso
+# Genero la ruta de la carpeta donde se guardaran los archivos
 route = generatedRoute()
 # Aquí tomo los numero del 1 al 4
 # para generar los BIB de los 4 quartiles al mismo tiempo

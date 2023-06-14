@@ -11,7 +11,7 @@ def separatedKeywords(lista):
     cont = 0
     for word in lista:
         ban = False
-        if len(word) != 1:
+        if len(word) > 1:
             while not ban:
                 if " " == word[0]:
                     lista[cont] = word[1:]
