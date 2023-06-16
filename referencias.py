@@ -1,5 +1,7 @@
 import re
 
+import unidecode as unidecode
+
 ar = open("scopusRef.csv", encoding="utf8")
 nomarRef = "archivos\\referenciasContar"
 nomarRefSql = "archivos\\referenciasContar"
@@ -23,28 +25,31 @@ for linea in ar:
         articulo = re.sub("/", "", articulo)
         # articulo = re.sub("\\", "", articulo)
         articulo = re.sub("'", "", articulo)
-        articulo = articulo.replace("Á", "A")
-        articulo = articulo.replace("É", "A")
-        articulo = articulo.replace("Í", "I")
-        articulo = articulo.replace("Ó", "O")
-        articulo = articulo.replace("Ú", "U")
 
-        articulo = articulo.replace("á", "a")
-        articulo = articulo.replace("é", "e")
-        articulo = articulo.replace("í", "i")
-        articulo = articulo.replace("ó", "o")
-        articulo = articulo.replace("ú", "u")
+        unidecode.unidecode(articulo)
 
-        articulo = articulo.replace("ä", "a")
-        articulo = articulo.replace("Ä", "A")
-        articulo = articulo.replace("ë", "e")
-        articulo = articulo.replace("Ë", "E")
-        articulo = articulo.replace("ï", "i")
-        articulo = articulo.replace("Ï", "I")
-        articulo = articulo.replace("ö", "o")
-        articulo = articulo.replace("Ö", "o")
-        articulo = articulo.replace("ü", "u")
-        articulo = articulo.replace("Ü", "U")
+        # articulo = articulo.replace("Á", "A")
+        # articulo = articulo.replace("É", "A")
+        # articulo = articulo.replace("Í", "I")
+        # articulo = articulo.replace("Ó", "O")
+        # articulo = articulo.replace("Ú", "U")
+        #
+        # articulo = articulo.replace("á", "a")
+        # articulo = articulo.replace("é", "e")
+        # articulo = articulo.replace("í", "i")
+        # articulo = articulo.replace("ó", "o")
+        # articulo = articulo.replace("ú", "u")
+        #
+        # articulo = articulo.replace("ä", "a")
+        # articulo = articulo.replace("Ä", "A")
+        # articulo = articulo.replace("ë", "e")
+        # articulo = articulo.replace("Ë", "E")
+        # articulo = articulo.replace("ï", "i")
+        # articulo = articulo.replace("Ï", "I")
+        # articulo = articulo.replace("ö", "o")
+        # articulo = articulo.replace("Ö", "o")
+        # articulo = articulo.replace("ü", "u")
+        # articulo = articulo.replace("Ü", "U")
 
         segRef = ref.split(",")
         conSeg = len(segRef)

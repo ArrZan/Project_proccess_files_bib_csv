@@ -135,6 +135,8 @@ def format_bibtex_entry(entry):
 
 if os.path.exists('merged.bib'):
     os.unlink('merged.bib')
+
+# /////////////////////////////////////////////// Este codigo es para quitar duplicados entre dos archivos y fusionarlos
 #
 # with open('scopus.bib', encoding="utf8") as bibtex_file:
 #     bib_database = bibtexparser.load(bibtex_file)

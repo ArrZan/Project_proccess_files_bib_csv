@@ -1,5 +1,5 @@
 import bibtexparser
-
+import os
 entradas = {}
 
 
@@ -13,8 +13,8 @@ def addEntry(diccionario):
             entradas[xentry] = 1
 
 
-with open('merged.bib', encoding="utf8") as bibtex_file:
-    bib_database = bibtexparser.load(bibtex_file)
+# with open('merged.bib', encoding="utf8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_file)
 #     cont = 0
 # print("|" * 100)
 # for fuente in bib_database.entries:
@@ -37,7 +37,7 @@ with open('merged.bib', encoding="utf8") as bibtex_file:
 # print(cont)
 
 
-with open('merged.bib', encoding="utf8") as bibtex_file:
+with open('merged/merged_24_05_2023/merged.bib', encoding="utf8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
 
 for fuente in bib_database.entries:
