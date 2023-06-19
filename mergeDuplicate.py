@@ -17,6 +17,7 @@ listaKeys = {}  # Lista de los keywords sin repetir y contadas
 listKw = {}  # Lista de keywords
 listKwp = {}  # Lista de keywords plus
 listKwa = {}  # Lista de author keywords
+contTitle = 1  # Contador para poner al lado del titulo
 
 
 def union(key, entrykey):
@@ -26,7 +27,7 @@ def union(key, entrykey):
 
 
 def format_bibtex_entry(entry):
-    global vacias, kwvacia, kwpvacia, akwvacia, listaKeys, listKw, listKwp, listKwa
+    global vacias, kwvacia, kwpvacia, akwvacia, listaKeys, listKw, listKwp, listKwa, contTitle
     # field, format, wrap or not
     field_order = [(u'author', '{{{0}}},\n', True),
                    (u'title', '{{{0}}},\n', True),
@@ -47,12 +48,16 @@ def format_bibtex_entry(entry):
     # ENTRYTYPE
     s = '@{type}{{{id},\n'.format(type=entry['ENTRYTYPE'],
                                   id=entry['ID'])
+
     for field, fmt, wrap in field_order:
         if field in entry:
-            s1 = '{0}='.format(field)
-            s2 = fmt.format(entry[field])
-            s3 = '{0}{1}'.format(s1, s2)
-            s += s3 + '\n'
+            if field == 'title':
+                s += union(field, '{0} {1}'.format(contTitle, entry[field]))
+            else:
+                s1 = '{0}='.format(field)
+                s2 = fmt.format(entry[field])
+                s3 = '{0}{1}'.format(s1, s2)
+                s += s3 + '\n'
 
     keyword = 0
     keywords_plus = 0
@@ -130,6 +135,7 @@ def format_bibtex_entry(entry):
         akwvacia += 1  # Contador de author_keywords vacíos
 
     s += '\n}\n\n'
+    contTitle += 1
     return s
 
 
@@ -182,7 +188,7 @@ if os.path.exists('merged.bib'):
 # print('MERGED: {0} entries in file 1'.format(len(entries2)))
 
 # /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo
-with open('unidos.bib', encoding="utf-8") as bibtex_file:
+with open('unidosagency.bib', encoding="utf-8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
     entries1 = bib_database.get_entry_list()
 print('Artículos: {0} entries in file'.format(len(entries1)))
@@ -208,29 +214,25 @@ with open('merged.bib', encoding="utf8") as bibtex_file:
 print('MERGED: {0} entries in file 1'.format(len(merged)))
 
 # /////////////////////////////////////////////// Aquí reunimos todas las palabras claves
-keywordsAll = open("keywordsAllList.csv", "w")
-keywordsAll.write("keywords;count;" + chr(13))
-for keywords in listaKeys:
-    keywordsAll.write(keywords + ";" + str(listaKeys[keywords]) + ";" + chr(13))
-keywordsAll.close()
+with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
+    keywordsAll.write("keywords;count;" + chr(13))
+    for keywords in listaKeys:
+        keywordsAll.write(keywords + ";" + str(listaKeys[keywords]) + ";" + chr(13))
 
 #  Aquí reunimos todas las palabras claves de keywords únicamente
-listKeywords = open("keywordsList.csv", "w")
-listKeywords.write("keywords;count;" + chr(13))
-for keywords in listKw:
-    listKeywords.write(keywords + ";" + str(listKw[keywords]) + ";" + chr(13))
-listKeywords.close()
+with open("keywordsList.csv", "w", encoding='utf-8') as listKeywords:
+    listKeywords.write("keywords;count;" + chr(13))
+    for keywords in listKw:
+        listKeywords.write(keywords + ";" + str(listKw[keywords]) + ";" + chr(13))
 
 #  Aquí reunimos todas las palabras claves de keywords-plus únicamente
-listKeywordsPlus = open("keywordsPlusList.csv", "w")
-listKeywordsPlus.write("keywords;count;" + chr(13))
-for keywords in listKwp:
-    listKeywordsPlus.write(keywords + ";" + str(listKwp[keywords]) + ";" + chr(13))
-listKeywordsPlus.close()
+with open("keywordsPlusList.csv", "w", encoding='utf-8') as listKeywordsPlus:
+    listKeywordsPlus.write("keywords;count;" + chr(13))
+    for keywords in listKwp:
+        listKeywordsPlus.write(keywords + ";" + str(listKwp[keywords]) + ";" + chr(13))
 
 #  Aquí reunimos todas las palabras claves de author_keywords únicamente
-listKeywordsAuthor = open("keywordsAuthorList.csv", "w")
-listKeywordsAuthor.write("keywords;count;" + chr(13))
-for keywords in listKwa:
-    listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
-listKeywordsAuthor.close()
+with open("keywordsAuthorList.csv", "w", encoding='utf-8') as listKeywordsAuthor:
+    listKeywordsAuthor.write("keywords;count;" + chr(13))
+    for keywords in listKwa:
+        listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))

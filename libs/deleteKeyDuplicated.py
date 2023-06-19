@@ -1,6 +1,7 @@
 # Separamos los keywords
-def separatedKeywords(lista):
 
+
+def separatedKeywords(lista):
     if "," in lista:
         lista = lista.replace(",", ";")
     if "\n" in lista:
@@ -11,18 +12,22 @@ def separatedKeywords(lista):
     cont = 0
     for word in lista:
         ban = False
-        if len(word) > 1:
-            while not ban:
-                if " " == word[0]:
-                    lista[cont] = word[1:]
-                    word = word[1:]
+        try:
 
-                elif " " == word[-1]:
-                    lista[cont] = word[0:-2]
-                    word = word[0:-2]
-                else:
-                    ban = True
-            cont += 1
+            if len(word) > 1:
+                while not ban:
+                    if " " == word[0]:
+                        lista[cont] = word[1:]
+                        word = word[1:]
+
+                    elif " " == word[-1]:
+                        lista[cont] = word[0:-2]
+                        word = word[0:-2]
+                    else:
+                        ban = True
+                cont += 1
+        except:
+            print(lista)
 
     return lista
 
