@@ -188,15 +188,18 @@ if os.path.exists('merged.bib'):
 # print('MERGED: {0} entries in file 1'.format(len(entries2)))
 
 # /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo
-with open('unidosagency.bib', encoding="utf-8") as bibtex_file:
+with open('unidos.bib', encoding="utf-8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
     entries1 = bib_database.get_entry_list()
 print('Artículos: {0} entries in file'.format(len(entries1)))
 
 # Se setea los títulos del archivo, quitando los repetidos
 titleEnt = list(set([entry['title'].upper() for entry in entries1]))
+print('Duplicados: {0} in file 1'.format(len(entries1)-len(titleEnt)))
+
 # Cantidad de titulos seteados
-print(len(titleEnt))
+# print(len(titleEnt))
+
 # Se va iterando el archivo original
 for entry in entries1:
     # Preguntamos por el titulo de la iteración si está en los titulos seteados, si está, se lo agrega al archivo merged
@@ -236,3 +239,8 @@ with open("keywordsAuthorList.csv", "w", encoding='utf-8') as listKeywordsAuthor
     listKeywordsAuthor.write("keywords;count;" + chr(13))
     for keywords in listKwa:
         listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
+
+print('Quantity of all types of keywords: {0}'.format(len(listaKeys)))
+print('Quantity of keywords: {0}'.format(len(listKw)))
+print('Quantity of keywords-plus: {0}'.format(len(listKwp)))
+print('Quantity of author-keywords: {0}'.format(len(listKwa)))
