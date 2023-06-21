@@ -1,8 +1,8 @@
-sweets = ["cupcake", "candy", "lollipop", "cake", "lollipop", "cheesecake", "candy", "cupcake"]
-unique_sweets = []
-for sweet in sweets:
-    if sweet not in unique_sweets:
-        unique_sweets.append(sweet)
-
-print(unique_sweets)
-print(set(sweets))
+# Ordenar una lista de coches almacenados como diccionarios
+diccionarios_coches = [
+    {'color': 'Rojo', 'matricula': '4859-A', 'cambio': 'A'},
+    {'color': 'Azul', 'matricula': '2901-Z', 'cambio': 'M'},
+    {'color': 'Gris', 'matricula': '1892-B', 'cambio': 'M'}
+]
+ordenados = sorted(diccionarios_coches, key=lambda coche: coche['color'])
+print(ordenados)

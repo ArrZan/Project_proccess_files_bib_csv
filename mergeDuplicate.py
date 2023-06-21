@@ -28,6 +28,7 @@ def union(key, entrykey):
 
 def format_bibtex_entry(entry):
     global vacias, kwvacia, kwpvacia, akwvacia, listaKeys, listKw, listKwp, listKwa, contTitle
+
     # field, format, wrap or not
     field_order = [(u'author', '{{{0}}},\n', True),
                    (u'title', '{{{0}}},\n', True),
@@ -44,20 +45,24 @@ def format_bibtex_entry(entry):
     extra_fields.remove('ENTRYTYPE')
     extra_fields.remove('ID')
 
-    # Now build up our entry string
+    # Now build our input string and add the code sorted by year
     # ENTRYTYPE
-    s = '@{type}{{{id},\n'.format(type=entry['ENTRYTYPE'],
-                                  id=entry['ID'])
+    s = '@{type}{{{id},\ncode={{{code}}},\n\n'.format(type=entry['ENTRYTYPE'],
+                                                      id=entry['ID'], code=contTitle)
 
     for field, fmt, wrap in field_order:
         if field in entry:
-            if field == 'title':
-                s += union(field, '{0} {1}'.format(contTitle, entry[field]))
-            else:
-                s1 = '{0}='.format(field)
-                s2 = fmt.format(entry[field])
-                s3 = '{0}{1}'.format(s1, s2)
-                s += s3 + '\n'
+            # This commented code was to add a counter to the title, as we already put it in code, I comment this.
+            # if field == 'title':
+            #     s += union(field, '{0} {1}'.format(contTitle, entry[field]))
+            # else:
+            s1 = '{0}='.format(field)
+            s2 = fmt.format(entry[field])
+            s3 = '{0}{1}'.format(s1, s2)
+            s += s3 + '\n'
+
+    # We add a new field for quartiles
+    s += union('Quartil', 'Undefined')
 
     keyword = 0
     keywords_plus = 0
@@ -195,13 +200,16 @@ print('Artículos: {0} entries in file'.format(len(entries1)))
 
 # Se setea los títulos del archivo, quitando los repetidos
 titleEnt = list(set([entry['title'].upper() for entry in entries1]))
-print('Duplicados: {0} in file 1'.format(len(entries1)-len(titleEnt)))
+print('Duplicados: {0} in file 1'.format(len(entries1) - len(titleEnt)))
 
 # Cantidad de titulos seteados
 # print(len(titleEnt))
 
+# Ordenamos los artículos por año de menor a mayor
+OrderEntrys = sorted(entries1, key=lambda artic: int(artic['year']))
+
 # Se va iterando el archivo original
-for entry in entries1:
+for entry in OrderEntrys:
     # Preguntamos por el titulo de la iteración si está en los titulos seteados, si está, se lo agrega al archivo merged
     if entry['title'].upper() in titleEnt:
         with open('merged.bib', 'a', encoding="utf8") as f:
@@ -211,34 +219,34 @@ for entry in entries1:
         titleEnt.remove(entry['title'].upper())
 
 # Se vuelve a abrir el archivo para contar los archivos que quedaron
-with open('merged.bib', encoding="utf8") as bibtex_file:
-    bib_database = bibtexparser.load(bibtex_file)
-    merged = bib_database.get_entry_list()
-print('MERGED: {0} entries in file 1'.format(len(merged)))
-
-# /////////////////////////////////////////////// Aquí reunimos todas las palabras claves
-with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
-    keywordsAll.write("keywords;count;" + chr(13))
-    for keywords in listaKeys:
-        keywordsAll.write(keywords + ";" + str(listaKeys[keywords]) + ";" + chr(13))
-
-#  Aquí reunimos todas las palabras claves de keywords únicamente
-with open("keywordsList.csv", "w", encoding='utf-8') as listKeywords:
-    listKeywords.write("keywords;count;" + chr(13))
-    for keywords in listKw:
-        listKeywords.write(keywords + ";" + str(listKw[keywords]) + ";" + chr(13))
-
-#  Aquí reunimos todas las palabras claves de keywords-plus únicamente
-with open("keywordsPlusList.csv", "w", encoding='utf-8') as listKeywordsPlus:
-    listKeywordsPlus.write("keywords;count;" + chr(13))
-    for keywords in listKwp:
-        listKeywordsPlus.write(keywords + ";" + str(listKwp[keywords]) + ";" + chr(13))
-
-#  Aquí reunimos todas las palabras claves de author_keywords únicamente
-with open("keywordsAuthorList.csv", "w", encoding='utf-8') as listKeywordsAuthor:
-    listKeywordsAuthor.write("keywords;count;" + chr(13))
-    for keywords in listKwa:
-        listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
+# with open('merged.bib', encoding="utf8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_file)
+#     merged = bib_database.get_entry_list()
+# print('MERGED: {0} entries in file 1'.format(len(merged)))
+#
+# # /////////////////////////////////////////////// Aquí reunimos todas las palabras claves
+# with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
+#     keywordsAll.write("keywords;count;" + chr(13))
+#     for keywords in listaKeys:
+#         keywordsAll.write(keywords + ";" + str(listaKeys[keywords]) + ";" + chr(13))
+#
+# #  Aquí reunimos todas las palabras claves de keywords únicamente
+# with open("keywordsList.csv", "w", encoding='utf-8') as listKeywords:
+#     listKeywords.write("keywords;count;" + chr(13))
+#     for keywords in listKw:
+#         listKeywords.write(keywords + ";" + str(listKw[keywords]) + ";" + chr(13))
+#
+# #  Aquí reunimos todas las palabras claves de keywords-plus únicamente
+# with open("keywordsPlusList.csv", "w", encoding='utf-8') as listKeywordsPlus:
+#     listKeywordsPlus.write("keywords;count;" + chr(13))
+#     for keywords in listKwp:
+#         listKeywordsPlus.write(keywords + ";" + str(listKwp[keywords]) + ";" + chr(13))
+#
+# #  Aquí reunimos todas las palabras claves de author_keywords únicamente
+# with open("keywordsAuthorList.csv", "w", encoding='utf-8') as listKeywordsAuthor:
+#     listKeywordsAuthor.write("keywords;count;" + chr(13))
+#     for keywords in listKwa:
+#         listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
 
 print('Quantity of all types of keywords: {0}'.format(len(listaKeys)))
 print('Quantity of keywords: {0}'.format(len(listKw)))
