@@ -25,7 +25,8 @@ def addReference(refr):
     tempRef = refr
     # Buscamos los autores de la línea con el siguiente regex
     authors = re.findall(r'([a-zA-ZÀ-ÿ .-]+,\s([A-Z].-[A-Z].|[A-Z].)+)+,\s', tempRef)
-    yearArc = re.search(r'\((\d{4})\)', tempRef)
+    # Extraemos el año siempre que sea mayor a 1000 o menor 2999
+    yearArc = re.search(r'\(([1-2]\d{3})\)', tempRef)
 
     data['authors'] = []
 

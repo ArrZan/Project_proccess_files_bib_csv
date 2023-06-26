@@ -11,6 +11,7 @@ numLines = 0
 nomarRef = "archivos\\referenciasContar"
 conArc = 1
 vacio = 'Vacio'
+ArtSinRef = 0
 
 
 def addReference(refr):
@@ -25,7 +26,8 @@ def addReference(refr):
     tempRef = refr
     # Buscamos los autores de la línea con el siguiente regex
     authors = re.findall(r'([a-zA-ZÀ-ÿ .-]+,\s([A-Z].-[A-Z].|[A-Z].)+)+,\s', tempRef)
-    yearArc = re.search(r'\((\d{4})\)', tempRef)
+    # Extraemos el año siempre que sea mayor a 1000 o menor 2999
+    yearArc = re.search(r'\(([1-2]\d{3})\)', tempRef)
 
     data['authors'] = []
 
@@ -46,7 +48,6 @@ def addReference(refr):
 
     # Unimos los autores en una sola variable siempre y cuando no venga 'vacío'
     tempauts = ", ".join(data['authors']) if data['authors'][0] != vacio else vacio
-        
 
     return '"{anio}","{autorFirst}","{autorLast}","{autores}","{cont}","1","{references}"\n'.format(
         autorFirst=data['authors'][0],
@@ -54,37 +55,70 @@ def addReference(refr):
         autores=tempauts,
         cont=conArc,
         anio=data['year'],
-        references=ref)
+        references=refr)
 
 
-with open("unidos.bib", encoding="utf8") as bibtex_file:  # Variable que toma el archivo
+with open("prueba.bib", encoding="utf-8") as bibtex_file:  # Variable que toma el archivo
     bib_database = bibtexparser.load(bibtex_file)
-    entries = bib_database.get_entry_list()
+    listArticulos = bib_database.get_entry_list()
+
     # Genero el archivo y la cabecera para guardar toda la info
-    with open(nomarRef + str(conarchivo) + ".csv", "w", encoding="utf8") as arRef:
-        arRef.write("year,authorFirst, authorLast, authors,article,number,line\n")
+    with open(nomarRef + "1.csv", "w", encoding="utf-8") as arRef:
+        arRef.write("year, authorFirst, authorLast, authors, article, number, line\n")
 
     # Genero el archivo de errores
     with open("referenciasDañadas.csv", "w", encoding="utf-8") as refDa:
         refDa.write('articulo\n')
 
-    for linea in art:
+    for articulo in listArticulos:
+        refersExiste = True
 
-        refs = linea.split(";")
+        if 'references' in articulo:
+            formatReferencia = 'references'
+        elif 'cited-references' in articulo:
+            formatReferencia = 'cited-references'
+        else:
+            refersExiste = False
 
-        for ref in refs:
-            if re.search(r',', ref) is None:  # Preguntamos si no es un valor bruto
-                with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
-                    refDan.write(ref + "\n")
+        if refersExiste:
+            listRefers = articulo[formatReferencia]
+
+            if formatReferencia == 'references':
+                listRefers = listRefers.split(';')
             else:
+                listRefers = re.findall(r'\S.+\.', listRefers)
 
-                lineSave = addReference(ref)
-                with open(nomarRef + str(conarchivo) + ".csv", "a", encoding="utf8") as arRef:
-                    arRef.write(lineSave)
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            for refer in listRefers:
+                if re.search(r',', refer) is None:  # Preguntamos si no es un valor bruto
+                    with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
+                        refDan.write(refer + "\n")
+                else:
+                    lineSave = addReference(refer)
+                    with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
+                        arRef.write(lineSave)
+
+        else:
+            print('dañado', articulo)
+            # with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
+            #     refDan.write(articulo + "\n")
+            # ArtSinRef += 1
+
         conArc += 1
 
     print('Dañados: ', len(daniados))
     for i in daniados:
         print(i)
 
-print('Artículos: {0} entries in file'.format(len(entries1)))
