@@ -1,60 +1,40 @@
 import re
 
 import bibtexparser
+
+from referencesCSV import addReference
 import unidecode as unidecode
 
 # nomarRefSql = "archivos\\referenciasContar"
 
 
-daniados = []
-numLines = 0
-nomarRef = "archivos\\referenciasContar"
-conArc = 1
+daniados = []  # Guardamos los archivos que no se pueden procesar por que no cumplen con los parametros
+# numLines = 0
+nomarRef = "archivos\\referenciasContar"  # Dirección y nombre del archivo csv
+conArc = 1  # Contador para el Artículo
 vacio = 'Vacio'
-ArtSinRef = 0
+ArtSinRef = 0  # Contador para los artículos sin referencia
 
 
-def addReference(refr):
-    # Guardaremos los datos de autores, title y año
-    data = {}
+def addReferenceWoS(refr):
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
     unidecode.unidecode(refr)
 
-    # Elimino las lineas que empiezan con una comilla o espacio o si están al final
-    refr = re.sub(r'^\s|\s$|^"|"$', '', refr)
+    # Separamos los campos de la referencia
+    tempRef = refr.split(',')
 
-    tempRef = refr
-    # Buscamos los autores de la línea con el siguiente regex
-    authors = re.findall(r'([a-zA-ZÀ-ÿ .-]+,\s([A-Z].-[A-Z].|[A-Z].)+)+,\s', tempRef)
-    # Extraemos el año siempre que sea mayor a 1000 o menor 2999
-    yearArc = re.search(r'\(([1-2]\d{3})\)', tempRef)
+    # Variable para indicar si existe y toma el valor del año
+    yearExiste = re.search(r'(\d{4})', tempRef[1])
 
-    data['authors'] = []
-
-    # Sacamos el primer y último autor en caso que exista sino 'vacío'
-    if len(authors) > 1:
-        # Agregamos todos los autores
-        for value in authors:
-            data['authors'].append(value[0])
-
-    elif len(authors) == 1:
-        data['authors'].append(authors[0][0])
-
-    else:
-        data['authors'].append(vacio)
-
-    # Añadimos el valor de año, en caso sea None el valor será 'vacio'
-    data['year'] = vacio if yearArc is None else yearArc.group(1)
-
-    # Unimos los autores en una sola variable siempre y cuando no venga 'vacío'
-    tempauts = ", ".join(data['authors']) if data['authors'][0] != vacio else vacio
+    # Si es None, pondrá vacio, si no tomará el año
+    year = vacio if yearExiste is None else yearExiste.group(1)
 
     return '"{anio}","{autorFirst}","{autorLast}","{autores}","{cont}","1","{references}"\n'.format(
-        autorFirst=data['authors'][0],
-        autorLast=data['authors'][-1],
-        autores=tempauts,
+        anio=year,
+        autorFirst=tempRef[0],
+        autorLast=tempRef[0],
+        autores=tempRef[0],
         cont=conArc,
-        anio=data['year'],
         references=refr)
 
 
@@ -83,32 +63,24 @@ with open("prueba.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
         if refersExiste:
             listRefers = articulo[formatReferencia]
 
-            if formatReferencia == 'references':
-                listRefers = listRefers.split(';')
-            else:
-                listRefers = re.findall(r'\S.+\.', listRefers)
-
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
-            # ---------------------- AQUI ME QUEDÉ, SE SUPONE TENEMOS COMA POR SEPARACIÓN PARA TODOS, HACEMOS UN SPLIT
+            listRefers = listRefers.split(';') if formatReferencia == 'references' else re.findall(r'\S.+\.',
+                                                                                                   listRefers)
             for refer in listRefers:
-                if re.search(r',', refer) is None:  # Preguntamos si no es un valor bruto
-                    with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
-                        refDan.write(refer + "\n")
+                if formatReferencia == 'cited-references':
+                    # Separamos los datos de la referencia por los campos que tenemos
+                    lineSave = addReferenceWoS(refer)
                 else:
-                    lineSave = addReference(refer)
-                    with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
-                        arRef.write(lineSave)
+                    if re.search(r',', refer) is None:  # Preguntamos si no es un valor bruto
+                        # Si está dañado se lo guarda en este archivo
+                        with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
+                            refDan.write(refer + "\n")
+                    else:
+                        # Separamos los datos de la referencia por los campos que tenemos
+                        lineSave = addReference(refer)
+
+                # Añadimos la referencia al archivo
+                with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
+                    arRef.write(lineSave)
 
         else:
             print('dañado', articulo)

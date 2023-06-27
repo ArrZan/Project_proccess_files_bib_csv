@@ -5,16 +5,16 @@ import unidecode as unidecode
 # nomarRefSql = "archivos\\referenciasContar"
 
 
-daniados = []
-numLines = 0
+daniados = []  # Guardamos los archivos que no se pueden procesar por que no cumplen con los parametros
+# numLines = 0
 nomarRef = "archivos\\referenciasContar"
-conarchivo = 1
-conArc = 1
+conarchivo = 1  # Contador usado en el nombre del archivo csv creado
+conArc = 1  # Contador para el Artículo
 vacio = 'Vacio'
 
 
 def addReference(refr):
-    # Guardaremos los datos de autores, title y año
+    # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
     data = {}
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
     unidecode.unidecode(refr)
@@ -27,6 +27,9 @@ def addReference(refr):
     authors = re.findall(r'([a-zA-ZÀ-ÿ .-]+,\s([A-Z].-[A-Z].|[A-Z].)+)+,\s', tempRef)
     # Extraemos el año siempre que sea mayor a 1000 o menor 2999
     yearArc = re.search(r'\(([1-2]\d{3})\)', tempRef)
+
+    # Añadimos el valor de año, en caso sea None el valor será 'Vacio'
+    data['year'] = vacio if yearArc is None else yearArc.group(1)
 
     data['authors'] = []
 
@@ -43,8 +46,6 @@ def addReference(refr):
         data['authors'].append(vacio)
         tempauts = vacio
 
-    # Añadimos el valor de año, en caso sea None el valor será 'Vacio'
-    data['year'] = vacio if yearArc is None else yearArc.group(1)
 
     # Unimos los autores en una sola variable siempre y cuando no venga 'vacío'
     if data['authors'][0] != vacio:
@@ -80,34 +81,34 @@ def addReference(refr):
         autores=tempauts,
         cont=conArc,
         anio=data['year'],
-        references=ref)
+        references=refr)
 
 
-with open("scopusRef2.csv", encoding="utf8") as art:  # Variable que toma el archivo
-
-    # Genero el archivo y la cabecera para guardar toda la info
-    with open(nomarRef + str(conarchivo) + ".csv", "w", encoding="utf8") as arRef:
-        arRef.write("year,authorFirst, authorLast, authors,article,number,line\n")
-
-    # Genero el archivo de errores
-    with open("referenciasDañadas.csv", "w", encoding="utf-8") as refDa:
-        refDa.write('articulo\n')
-
-    for linea in art:
-
-        refs = linea.split(";")
-
-        for ref in refs:
-            if re.search(r',', ref) is None:  # Preguntamos si no es un valor bruto
-                with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
-                    refDan.write(ref + "\n")
-            else:
-
-                lineSave = addReference(ref)
-                with open(nomarRef + str(conarchivo) + ".csv", "a", encoding="utf8") as arRef:
-                    arRef.write(lineSave)
-        conArc += 1
-
-    print('Dañados: ', len(daniados))
-    for i in daniados:
-        print(i)
+# with open("scopusRef2.csv", encoding="utf8") as art:  # Variable que toma el archivo
+#
+#     # Genero el archivo y la cabecera para guardar toda la info
+#     with open(nomarRef + str(conarchivo) + ".csv", "w", encoding="utf8") as arRef:
+#         arRef.write("year,authorFirst, authorLast, authors,article,number,line\n")
+#
+#     # Genero el archivo de errores
+#     with open("referenciasDañadas.csv", "w", encoding="utf-8") as refDa:
+#         refDa.write('articulo\n')
+#
+#     for linea in art:
+#
+#         refs = linea.split(";")
+#
+#         for ref in refs:
+#             if re.search(r',', ref) is None:  # Preguntamos si no es un valor bruto
+#                 with open("referenciasDañadas.csv", "a", encoding="utf-8") as refDan:
+#                     refDan.write(ref + "\n")
+#             else:
+#
+#                 lineSave = addReference(ref)
+#                 with open(nomarRef + str(conarchivo) + ".csv", "a", encoding="utf8") as arRef:
+#                     arRef.write(lineSave)
+#         conArc += 1
+#
+#     print('Dañados: ', len(daniados))
+#     for i in daniados:
+#         print(i)
