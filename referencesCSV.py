@@ -46,7 +46,6 @@ def addReference(refr):
         data['authors'].append(vacio)
         tempauts = vacio
 
-
     # Unimos los autores en una sola variable siempre y cuando no venga 'vacío'
     if data['authors'][0] != vacio:
         tempauts = ", ".join(data['authors'])

@@ -225,28 +225,28 @@ for entry in OrderEntrys:
 # print('MERGED: {0} entries in file 1'.format(len(merged)))
 #
 # # /////////////////////////////////////////////// Aquí reunimos todas las palabras claves
-# with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
-#     keywordsAll.write("keywords;count;" + chr(13))
-#     for keywords in listaKeys:
-#         keywordsAll.write(keywords + ";" + str(listaKeys[keywords]) + ";" + chr(13))
-#
-# #  Aquí reunimos todas las palabras claves de keywords únicamente
-# with open("keywordsList.csv", "w", encoding='utf-8') as listKeywords:
-#     listKeywords.write("keywords;count;" + chr(13))
-#     for keywords in listKw:
-#         listKeywords.write(keywords + ";" + str(listKw[keywords]) + ";" + chr(13))
-#
-# #  Aquí reunimos todas las palabras claves de keywords-plus únicamente
-# with open("keywordsPlusList.csv", "w", encoding='utf-8') as listKeywordsPlus:
-#     listKeywordsPlus.write("keywords;count;" + chr(13))
-#     for keywords in listKwp:
-#         listKeywordsPlus.write(keywords + ";" + str(listKwp[keywords]) + ";" + chr(13))
-#
-# #  Aquí reunimos todas las palabras claves de author_keywords únicamente
-# with open("keywordsAuthorList.csv", "w", encoding='utf-8') as listKeywordsAuthor:
-#     listKeywordsAuthor.write("keywords;count;" + chr(13))
-#     for keywords in listKwa:
-#         listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
+with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
+    keywordsAll.write("keywords;count;" + chr(13))
+    for keywords in listaKeys:
+        keywordsAll.write(keywords + ";" + str(listaKeys[keywords]) + ";" + chr(13))
+
+#  Aquí reunimos todas las palabras claves de keywords únicamente
+with open("keywordsList.csv", "w", encoding='utf-8') as listKeywords:
+    listKeywords.write("keywords;count;" + chr(13))
+    for keywords in listKw:
+        listKeywords.write(keywords + ";" + str(listKw[keywords]) + ";" + chr(13))
+
+#  Aquí reunimos todas las palabras claves de keywords-plus únicamente
+with open("keywordsPlusList.csv", "w", encoding='utf-8') as listKeywordsPlus:
+    listKeywordsPlus.write("keywords;count;" + chr(13))
+    for keywords in listKwp:
+        listKeywordsPlus.write(keywords + ";" + str(listKwp[keywords]) + ";" + chr(13))
+
+#  Aquí reunimos todas las palabras claves de author_keywords únicamente
+with open("keywordsAuthorList.csv", "w", encoding='utf-8') as listKeywordsAuthor:
+    listKeywordsAuthor.write("keywords;count;" + chr(13))
+    for keywords in listKwa:
+        listKeywordsAuthor.write(keywords + ";" + str(listKwa[keywords]) + ";" + chr(13))
 
 print('Quantity of all types of keywords: {0}'.format(len(listaKeys)))
 print('Quantity of keywords: {0}'.format(len(listKw)))
