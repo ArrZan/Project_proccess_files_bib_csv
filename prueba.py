@@ -9,3 +9,6 @@ for i in diccionarios_coches:
     dicciNew = {k.upper(): v for k, v in i.items()}
     print('cOlorEs' in dicciNew)
     print(dicciNew)
+
+
+# golasd
