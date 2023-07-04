@@ -2,7 +2,6 @@ import re
 
 import bibtexparser
 
-from referencesCSV import addReference
 import unidecode as unidecode
 
 # nomarRefSql = "archivos\\referenciasContar"
@@ -15,6 +14,52 @@ conArc = 1  # Contador para el Artículo
 vacio = 'Vacio'
 ArtSinRef = 0  # Contador para los artículos sin referencia
 
+TopAuthors = {}  # Top 10 de los autores más referenciados
+
+def addReference(refr, autorArt, anioArt):
+    # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
+    data = {}
+    # Transformo los caracteres con diéresis a su forma básica (ä -> a)
+    unidecode.unidecode(refr)
+
+    # Elimino las lineas que empiezan con una comilla o espacio o si están al final
+    refr = re.sub(r'^\s|\s$|^"|"$', '', refr)
+
+    tempRef = refr
+    # Buscamos los autores de la línea con el siguiente regex
+    authors = re.findall(r'([a-zA-ZÀ-ÿ .-]+,\s([A-Z].-[A-Z].|[A-Z].)+)+,\s', tempRef)
+    # Extraemos el año siempre que sea mayor a 1000 o menor 2999
+    yearExiste = re.search(r'\(([1-2]\d{3})\)', tempRef)
+
+    # Si es None, pondrá vacio, si no tomará el año
+    yearRef = vacio if yearExiste is None else yearExiste.group(1)
+
+    data['authors'] = []
+
+    # Sacamos el primer y último autor en caso que exista sino 'vacío'
+    if len(authors) > 1:
+        # Agregamos todos los autores
+        for value in authors:
+            data['authors'].append(value[0])
+
+    elif len(authors) == 1:
+        data['authors'].append(authors[0][0])
+
+    else:
+        data['authors'].append(vacio)
+        tempauts = vacio
+
+    primerAutor = data['authors'][0]
+    # Unimos los autores en una sola variable siempre y cuando no venga 'vacío'
+    if primerAutor != vacio:
+        # Unimos todos los autores con una coma
+        tempauts = ", ".join(data['authors'])
+
+        # Añadir los autores
+        TopAuthors[primerAutor] = TopAuthors[primerAutor] + 1 if primerAutor in TopAuthors else 1
+
+    return f'"{anioArt}","{autorArt}","{yearRef}","{data["authors"][0]}","{data["authors"][-1]}","{tempauts}","{conArc}","1","{refr}"\n'
+
 
 def addReferenceWoS(refr, autorArt, anioArt):
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
@@ -26,13 +71,17 @@ def addReferenceWoS(refr, autorArt, anioArt):
     # Variable para indicar si existe y toma el valor del año
     yearExiste = re.search(r'(\d{4})', tempRef[1])
 
+    if tempRef[0] is not vacio:
+        # Añadir los autores
+        TopAuthors[tempRef[0]] = tempRef[0] + 1 if tempRef[0] in TopAuthors else 1
+
     # Si es None, pondrá vacio, si no tomará el año
     yearRef = vacio if yearExiste is None else yearExiste.group(1)
 
     return f'"{anioArt}","{autorArt}","{yearRef}","{tempRef[0]}","{tempRef[0]}","{tempRef[0]}","{conArc}","1","{refr}"\n'
 
 
-with open("unidos.bib", encoding="utf-8") as bibtex_file:  # Variable que toma el archivo
+with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma el archivo
     bib_database = bibtexparser.load(bibtex_file)
     listArticulos = bib_database.get_entry_list()
 
@@ -82,18 +131,29 @@ with open("unidos.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
                             refDan.write(refer + "\n")
                     else:
                         # Separamos los datos de la referencia por los campos que tenemos
-                        lineSave = addReference(refer)
+                        lineSave = addReference(refer, autor, year)
 
                 # Añadimos la referencia al archivo
                 with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
                     arRef.write(lineSave)
 
         else:
-            daniados.append(daniados)
+            daniados.append(articulo)
 
         conArc += 1
 
-    print('Articulos: ', conArc)
-    print('Dañados: ', len(daniados))
-    # for i in daniados:
-    #     print(i)
+print('Articulos: ', conArc)
+print('Dañados: ', len(daniados))
+sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
+
+Top10Authors = {}
+Top = 10
+
+# while len(Top10Authors) <= Top:
+#     Top10Authors =
+
+# Top10Authors = [(key,value) for key, value in TopAuthors.items() if value >= 700]
+
+print(sortedAuthors)
+# for i in daniados:
+#     print(i)
