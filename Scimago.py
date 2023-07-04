@@ -6,6 +6,8 @@ database = 'SCIMAGO'
 user = 'postgres'
 password = '050101'
 
+sql = "INSERT INTO  \"public\".\"SRHM\" (authors,articulo) values(\'" + par1.strip().strip(
+                        ",") + " " + par2.strip().strip(",") + "\',\'" + articulo.strip(",") + "\');\n"
 journal_data = {
     'Rank': 1,
     'Sourceid': 28773,
