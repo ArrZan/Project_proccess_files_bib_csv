@@ -14,7 +14,8 @@ conArc = 1  # Contador para el Artículo
 vacio = 'Vacio'
 ArtSinRef = 0  # Contador para los artículos sin referencia
 
-TopAuthors = {}  # Top 10 de los autores más referenciados
+TopAuthors = {}  # Diccionario de los autores y de la cantidad de veces que fueron referenciados
+
 
 def addReference(refr, autorArt, anioArt):
     # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
@@ -144,16 +145,19 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
 print('Articulos: ', conArc)
 print('Dañados: ', len(daniados))
+
+# Ordeno (sorted) el TopAuthors de mayor a menor por valor
 sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
 
+# Creo el top donde guardaré los primeros 10 autores más referenciados
 Top10Authors = {}
 Top = 10
 
-# while len(Top10Authors) <= Top:
-#     Top10Authors =
-
-# Top10Authors = [(key,value) for key, value in TopAuthors.items() if value >= 700]
-
-print(sortedAuthors)
-# for i in daniados:
-#     print(i)
+# Añado los 10 autores
+for key, value in sortedAuthors.items():
+    # Pregunto por el top
+    if len(Top10Authors) < Top:
+        Top10Authors[key] = value
+    else:
+        # Salgo cuando los tenga a los 10
+        break
