@@ -1,6 +1,6 @@
 # Conexión a la base de datos PostgreSQL
 import psycopg2
-import os
+import os,csv
 host = 'localhost'
 database = 'SCIMAGO'
 user = 'postgres'
@@ -29,16 +29,16 @@ journal_data = {
     'Publisher': 'Wiley-Blackwell',
     'Coverage': '1950-2022'
 }
+with open("scimagojr 2022.csv", encoding="utf8") as csv_file:
+    # Crea un objeto reader similar a un diccionario delimitador por la barra |
+    listFile = csv.DictReader(csv_file, delimiter=';')
+    bigFile = []
+    # Itero el objeto reader para añadirlo en una lista
+    for row in listFile:
+        bigFile.append(row)
+print(bigFile)
 
-AbrirCsv = open("scimagojr 2022.csv", encoding="utf8")
-conArc = 1
-linea = AbrirCsv.readline()
-print(linea)
-for linea in AbrirCsv:
-    print(conArc, linea)
-    refArt = linea.split(";")
-
-
+print(journal_data)
 
 # conn = psycopg2.connect(
 #     host=host,
