@@ -62,6 +62,14 @@ def addReference(refr, autorArt, anioArt):
     return f'"{anioArt}","{autorArt}","{yearRef}","{data["authors"][0]}","{data["authors"][-1]}","{tempauts}","{conArc}","1","{refr}"\n'
 
 
+def quest_name_refer(articulo):
+    if 'references' in articulo:
+        return 'references'
+    elif 'cited-references' in articulo:
+        return 'cited-references'
+    else:
+        return False
+
 def addReferenceWoS(refr, autorArt, anioArt):
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
     unidecode.unidecode(refr)
@@ -82,6 +90,12 @@ def addReferenceWoS(refr, autorArt, anioArt):
     return f'"{anioArt}","{autorArt}","{yearRef}","{tempRef[0]}","{tempRef[0]}","{tempRef[0]}","{conArc}","1","{refr}"\n'
 
 
+'''/////////////////////////////////////////////// Codigo para leer un archivo bib, iterar cada articulo
+e ir extrayendo las referencias para extraer los autores de la referencia, el año y la referencia misma
+para añadirla como columna.'''
+
+listArticulos = []
+
 with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma el archivo
     bib_database = bibtexparser.load(bibtex_file)
     listArticulos = bib_database.get_entry_list()
@@ -95,7 +109,6 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
         refDa.write('articulo\n')
 
     for articulo in listArticulos:
-        refersExiste = True
 
         # Agregamos el autor
         if 'author' in articulo:
@@ -109,14 +122,9 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
         year = articulo['year'] if 'year' in articulo else vacio
 
-        if 'references' in articulo:
-            formatReferencia = 'references'
-        elif 'cited-references' in articulo:
-            formatReferencia = 'cited-references'
-        else:
-            refersExiste = False
+        formatReferencia = quest_name_refer(articulo)
 
-        if refersExiste:
+        if formatReferencia:
             listRefers = articulo[formatReferencia]
 
             listRefers = listRefers.split(';') if formatReferencia == 'references' else re.findall(r'\S.+\.',
@@ -146,6 +154,8 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 print('Articulos: ', conArc)
 print('Dañados: ', len(daniados))
 
+
+'''/////////////////////////////////////////////// Codigo para sacar los autores top.'''
 # Ordeno (sorted) el TopAuthors de mayor a menor por valor
 sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
 
@@ -153,11 +163,57 @@ sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lam
 Top10Authors = {}
 Top = 10
 
-# Añado los 10 autores
-for key, value in sortedAuthors.items():
+# Añado los 10 autores y su cantidad
+for key, quant in sortedAuthors.items():
     # Pregunto por el top
     if len(Top10Authors) < Top:
-        Top10Authors[key] = value
+        Top10Authors[key] = quant
     else:
         # Salgo cuando los tenga a los 10
         break
+
+'''/////////////////////////////////////////////// Codigo para guardar el abstract de los 10 autores.'''
+
+# Guardamos los autores y abstract
+abstAut = {}
+
+# with open('abstracts_Authors.txt', 'w', encoding="utf-8") as file_Text:
+for article in listArticulos:
+    formatReferencia = quest_name_refer(article)
+    if formatReferencia:
+        articleExists = False
+
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+        ## AQUI ME QUEDÉ
+
+        # Trato de preguntar si el abstract ya fue llamado en cualquiera de los otros autores
+        # para poder agregarlo y evitar repeticiones
+        for autor in Top10Authors:
+            if autor in article[formatReferencia] and articleExists:
+                if autor in abstAut:
+                    abstAut[autor].update({article['ID']: article['abstract']})
+                else:
+                    abstAut[autor] = {article['ID']: article['abstract']}
+                    articleExists = True
+    # file_Text.write("**** *")
+print(Top10Authors)
+print(len(abstAut))
+
+for key, abstracts in abstAut.items():
+    print("*"*10, f"{key} : {len(abstracts)}", "*"*10)
+    for key2, abstract in abstracts.items():
+        print(f"{key2}: {abstract}")
