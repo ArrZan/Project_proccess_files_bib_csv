@@ -206,7 +206,7 @@ cont = 1
 for key, content in abstAut.items():
     abstracts = content[1]
     # Guardamos por cada autor los abstract en un solo archivo de texto
-    with open(f"FilesAbstracts/abstract{cont}.txt", "a", encoding="utf-8") as fileTxt:
+    with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
         # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
         for key2, abstract in abstracts.items():
             fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
