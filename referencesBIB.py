@@ -16,7 +16,6 @@ ArtSinRef = 0  # Contador para los artículos sin referencia
 
 TopAuthors = {}  # Diccionario de los autores y de la cantidad de veces que fueron referenciados
 
-
 def addReference(refr, autorArt, anioArt):
     # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
     data = {}
@@ -68,7 +67,9 @@ def quest_name_refer(articulo):
     elif 'cited-references' in articulo:
         return 'cited-references'
     else:
+        # No existe
         return False
+
 
 def addReferenceWoS(refr, autorArt, anioArt):
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
@@ -181,39 +182,35 @@ abstAut = {}
 for article in listArticulos:
     formatReferencia = quest_name_refer(article)
     if formatReferencia:
+        # Preguntamos si existe en el absAut
         articleExists = False
-
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
-        ## AQUI ME QUEDÉ
 
         # Trato de preguntar si el abstract ya fue llamado en cualquiera de los otros autores
         # para poder agregarlo y evitar repeticiones
         for autor in Top10Authors:
-            if autor in article[formatReferencia] and articleExists:
+            if autor in article[formatReferencia]:
+                # print(f"{article['ID']} : {article['abstract']}")
                 if autor in abstAut:
-                    abstAut[autor].update({article['ID']: article['abstract']})
+                    abstAut[autor][1].update({article['ID']: article['abstract']})
                 else:
-                    abstAut[autor] = {article['ID']: article['abstract']}
-                    articleExists = True
+                    abstAut[autor] = [article['year'], {article['ID']: article['abstract']}]
+                    # articleExists = True
+
     # file_Text.write("**** *")
 print(Top10Authors)
-print(len(abstAut))
+print(len(Top10Authors.values()))
 
-for key, abstracts in abstAut.items():
-    print("*"*10, f"{key} : {len(abstracts)}", "*"*10)
-    for key2, abstract in abstracts.items():
-        print(f"{key2}: {abstract}")
+# def printAbstract(key, abstract):
+
+cont = 1
+for key, content in abstAut.items():
+    abstracts = content[1]
+    # Guardamos por cada autor los abstract en un solo archivo de texto
+    with open(f"FilesAbstracts/abstract{cont}.txt", "a", encoding="utf-8") as fileTxt:
+        # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
+        for key2, abstract in abstracts.items():
+            fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
+
+        #print(f"**** *ID_{key2}_{content[0]}_")
+        #print(abstract)
+    cont += 1
