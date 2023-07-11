@@ -1,13 +1,13 @@
 # Conexión a la base de datos PostgreSQL
 import psycopg2
-import os,csv
+import os, csv
+
 host = 'localhost'
 database = 'SCIMAGO'
 user = 'postgres'
 password = '050101'
 
-#Rank	Sourceid	Title	Type	Issn	SJR	SJR Best Quartile	H index	Total Docs. (2022)	Total Docs. (3years)	Total Refs.	Total Cites (3years)	Citable Docs. (3years)	Cites / Doc. (2years)	Ref. / Doc.	Country	Region	Publisher	Coverage	Categories	Areas
-
+journal_data_type = {'Type': 'journal'}
 journal_data = {
     'Rank': 1,
     'Sourceid': 28773,
@@ -30,15 +30,27 @@ journal_data = {
     'Coverage': '1950-2022'
 }
 with open("scimagojr 2022.csv", encoding="utf8") as csv_file:
-    # Crea un objeto reader similar a un diccionario delimitador por la barra |
     listFile = csv.DictReader(csv_file, delimiter=';')
     bigFile = []
     # Itero el objeto reader para añadirlo en una lista
     for row in listFile:
         bigFile.append(row)
-print(bigFile)
 
-print(journal_data)
+
+def browser(param):
+    for data in bigFile:
+        for nom in data.keys():
+            if nom == param:
+                print(data.values())
+
+
+def recorrer_dicc():
+    for k in journal_data_type.keys():
+        return k
+
+
+dato = recorrer_dicc()
+browser(dato)
 
 # conn = psycopg2.connect(
 #     host=host,
