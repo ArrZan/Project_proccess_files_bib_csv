@@ -181,24 +181,23 @@ abstAut = {}
 # with open('abstracts_Authors.txt', 'w', encoding="utf-8") as file_Text:
 for article in listArticulos:
     formatReferencia = quest_name_refer(article)
-    if formatReferencia:
-        # Preguntamos si existe en el absAut
-        articleExists = False
+    if 'abstract' in article:
+        if formatReferencia:
+            # Preguntamos si existe en el absAut
+            articleExists = False
 
-        # Trato de preguntar si el abstract ya fue llamado en cualquiera de los otros autores
-        # para poder agregarlo y evitar repeticiones
-        for autor in Top10Authors:
-            if autor in article[formatReferencia]:
-                # print(f"{article['ID']} : {article['abstract']}")
-                if autor in abstAut:
-                    abstAut[autor][1].update({article['ID']: article['abstract']})
-                else:
-                    abstAut[autor] = [article['year'], {article['ID']: article['abstract']}]
-                    # articleExists = True
+            # Trato de preguntar si el abstract ya fue llamado en cualquiera de los otros autores
+            # para poder agregarlo y evitar repeticiones
+            for autor in Top10Authors:
+                if autor in article[formatReferencia]:
+                    # print(f"{article['ID']} : {article['abstract']}")
+                    if autor in abstAut:
+                        abstAut[autor][1].update({article['ID']: article['abstract']})
+                    else:
+                        abstAut[autor] = [article['year'], {article['ID']: article['abstract']}]
+                        # articleExists = True
 
-    # file_Text.write("**** *")
-print(Top10Authors)
-print(len(Top10Authors.values()))
+        # file_Text.write("**** *")
 
 # def printAbstract(key, abstract):
 
@@ -210,7 +209,9 @@ for key, content in abstAut.items():
         # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
         for key2, abstract in abstracts.items():
             fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
-
-        #print(f"**** *ID_{key2}_{content[0]}_")
-        #print(abstract)
     cont += 1
+
+print(f"*********Reporte del Top de {Top} autores*********")
+print("Autor | Conteo")
+for autor, conteo in Top10Authors.items():
+    print(f"{autor}: {conteo}")

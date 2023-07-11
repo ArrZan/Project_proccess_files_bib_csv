@@ -193,7 +193,7 @@ if os.path.exists('merged.bib'):
 # print('MERGED: {0} entries in file 1'.format(len(entries2)))
 
 # /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo
-with open('scopus (1).bib', encoding="utf-8") as bibtex_file:
+with open('unidos.bib', encoding="utf-8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
     entries1 = bib_database.get_entry_list()
 print('Artículos: {0} entries in file'.format(len(entries1)))
