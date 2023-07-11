@@ -2,7 +2,7 @@ import re
 
 import bibtexparser
 
-import unidecode as unidecode
+import unidecode as ud
 
 # nomarRefSql = "archivos\\referenciasContar"
 
@@ -16,11 +16,12 @@ ArtSinRef = 0  # Contador para los artículos sin referencia
 
 TopAuthors = {}  # Diccionario de los autores y de la cantidad de veces que fueron referenciados
 
+
 def addReference(refr, autorArt, anioArt):
     # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
     data = {}
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
-    unidecode.unidecode(refr)
+    ud.unidecode(refr)
 
     # Elimino las lineas que empiezan con una comilla o espacio o si están al final
     refr = re.sub(r'^\s|\s$|^"|"$', '', refr)
@@ -73,7 +74,7 @@ def quest_name_refer(articulo):
 
 def addReferenceWoS(refr, autorArt, anioArt):
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
-    unidecode.unidecode(refr)
+    ud.unidecode(refr)
 
     # Separamos los campos de la referencia
     tempRef = refr.split(',')
@@ -111,7 +112,7 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
     for articulo in listArticulos:
 
-        # Agregamos el autor
+        # Agregamos los autores
         if 'author' in articulo:
             autor = articulo['author']
         elif 'authors' in articulo:
@@ -119,8 +120,10 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
         else:
             autor = vacio
 
+        # Tomo el primer autor
         autor = autor.split(' and ')[0]
 
+        # Tomo el año si existe
         year = articulo['year'] if 'year' in articulo else vacio
 
         formatReferencia = quest_name_refer(articulo)
@@ -155,14 +158,13 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 print('Articulos: ', conArc)
 print('Dañados: ', len(daniados))
 
-
 '''/////////////////////////////////////////////// Codigo para sacar los autores top.'''
 # Ordeno (sorted) el TopAuthors de mayor a menor por valor
 sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
 
 # Creo el top donde guardaré los primeros 10 autores más referenciados
 Top10Authors = {}
-Top = 10
+Top = 10  # Coloco el top que deseo, puede ser el top 100 o 5
 
 # Añado los 10 autores y su cantidad
 for key, quant in sortedAuthors.items():
@@ -175,43 +177,55 @@ for key, quant in sortedAuthors.items():
 
 '''/////////////////////////////////////////////// Codigo para guardar el abstract de los 10 autores.'''
 
-# Guardamos los autores y abstract
-abstAut = {}
+# Guardamos los autores(como key) y año y abstract's (como value en una lista)
+abstractsAut = {}
 
-# with open('abstracts_Authors.txt', 'w', encoding="utf-8") as file_Text:
 for article in listArticulos:
-    formatReferencia = quest_name_refer(article)
+    # Preguntamos si existe un abstract en el artículo
     if 'abstract' in article:
+        formatReferencia = quest_name_refer(article)
         if formatReferencia:
-            # Preguntamos si existe en el absAut
-            articleExists = False
-
-            # Trato de preguntar si el abstract ya fue llamado en cualquiera de los otros autores
-            # para poder agregarlo y evitar repeticiones
             for autor in Top10Authors:
+                # Se pregunta si el autor iterado del Top está dentro de las referencias del artículo
                 if autor in article[formatReferencia]:
-                    # print(f"{article['ID']} : {article['abstract']}")
-                    if autor in abstAut:
-                        abstAut[autor][1].update({article['ID']: article['abstract']})
+                    # Si existe se añadirá una  nueva referencia
+                    codeArticle = ud.unidecode(article['code'])
+                    abstractArticle = ud.unidecode(article['abstract'])
+                    if autor in abstractsAut:
+                        abstractsAut[autor][1].update({codeArticle: abstractArticle})
                     else:
-                        abstAut[autor] = [article['year'], {article['ID']: article['abstract']}]
+                        # Si no, se lo crea
+                        abstractsAut[autor] = [article['year'], {codeArticle: abstractArticle}]
                         # articleExists = True
 
         # file_Text.write("**** *")
 
-# def printAbstract(key, abstract):
 
+# Ordeno un diccionario desordenado comparándolo con otro igual (llaves iguales) pero ordenado
+def sortDict(dictionary_ordered, dictionary_messy):
+    orderedData = {}
+    # Pregunto si tienen las mismas claves
+    if set(dictionary_ordered.keys()) != set(dictionary_messy.keys()):
+        return False
+
+    for key in dictionary_ordered:
+        orderedData[key] = dictionary_messy[key]
+    return orderedData
+
+
+abstractsAutOrder = sortDict(Top10Authors, abstractsAut)
 cont = 1
-for key, content in abstAut.items():
-    abstracts = content[1]
-    # Guardamos por cada autor los abstract en un solo archivo de texto
-    with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
-        # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
-        for key2, abstract in abstracts.items():
-            fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
-    cont += 1
+if abstractsAutOrder:
+    for key, content in abstractsAutOrder.items():
+        abstracts = content[1]
+        # Guardamos por cada autor los abstract en un solo archivo de texto
+        with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
+            # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
+            for key2, abstract in abstracts.items():
+                fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
+        cont += 1
 
-print(f"*********Reporte del Top de {Top} autores*********")
+print("*"*20,f"Reporte del Top de {Top} autores","*"*20)
 print("Autor | Conteo")
 for autor, conteo in Top10Authors.items():
     print(f"{autor}: {conteo}")
