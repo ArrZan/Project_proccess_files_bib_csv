@@ -4,12 +4,16 @@
 #     {'color': 'Azul', 'matricula': '2901-Z', 'cambio': 'M'},
 #     {'color': 'Gris', 'matricula': '1892-B', 'cambio': 'M'}
 # ]
+d = ['$ 550,0000', '55025,0000', '5150,0000', '5450,0000', '5502,0000', '1550,0000']
 
-d = {'uno': 1, 'dos': 5, 'tres': 30, 'cuatro': 3230, 'cinco': 530, 'seis': 450, 'siete': 35, 'ocho': 50}
-sorted_d = sorted(d.values(), reverse=True)
+for i in d:
+    print(i[:-2])
 
-d.update({'uno': 3})
-print(d)
+# d = {'uno': 1, 'dos': 5, 'tres': 30, 'cuatro': 3230, 'cinco': 530, 'seis': 450, 'siete': 35, 'ocho': 50}
+# sorted_d = sorted(d.values(), reverse=True)
+#
+# d.update({'uno': 3})
+# print(d)
 # tos = [(key,value) for key, value in TopAuthors.items() if value >= 700]
 
 # print(sorted_d)
