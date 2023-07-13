@@ -188,9 +188,10 @@ for article in listArticulos:
             for autor in Top10Authors:
                 # Se pregunta si el autor iterado del Top está dentro de las referencias del artículo
                 if autor in article[formatReferencia]:
-                    # Si existe se añadirá una  nueva referencia
+                    # Codigo y el abstracto convertido con unidecode
                     codeArticle = ud.unidecode(article['code'])
                     abstractArticle = ud.unidecode(article['abstract'])
+                    # Si existe se añadirá una  nueva referencia
                     if autor in abstractsAut:
                         abstractsAut[autor][1].update({codeArticle: abstractArticle})
                     else:
@@ -211,7 +212,6 @@ def sortDict(dictionary_ordered, dictionary_messy):
     for key in dictionary_ordered:
         orderedData[key] = dictionary_messy[key]
     return orderedData
-
 
 abstractsAutOrder = sortDict(Top10Authors, abstractsAut)
 cont = 1
