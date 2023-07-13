@@ -7,7 +7,8 @@ database = 'SCIMAGO'
 user = 'postgres'
 password = '050101'
 
-journal_data_type = {'Type': 'journal'}
+journal_data_type = {
+    'Type': 'journal', 'Total_Docs_2022': 44}
 journal_data = {
     'Rank': 1,
     'Sourceid': 28773,
@@ -38,19 +39,22 @@ with open("scimagojr 2022.csv", encoding="utf8") as csv_file:
 
 
 def browser(param):
+    list = []
+    valores_unicos = []
     for data in bigFile:
         for nom in data.keys():
             if nom == param:
-                print(data.values())
+                list.append(data[param])
+                for repeat in list:
+                    if repeat not in valores_unicos:
+                        valores_unicos.append(repeat)
+
+    print(valores_unicos)
 
 
-def recorrer_dicc():
-    for k in journal_data_type.keys():
-        return k
+for k in journal_data_type.keys():
+    browser(k)
 
-
-dato = recorrer_dicc()
-browser(dato)
 
 # conn = psycopg2.connect(
 #     host=host,
