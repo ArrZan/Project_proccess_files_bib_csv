@@ -209,6 +209,7 @@ def sortDict(dictionary_ordered, dictionary_messy):
     if set(dictionary_ordered.keys()) != set(dictionary_messy.keys()):
         return False
 
+    # Itero para ordenarlo en caso las llaves sean iguales
     for key in dictionary_ordered:
         orderedData[key] = dictionary_messy[key]
     return orderedData
