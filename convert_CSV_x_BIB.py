@@ -20,11 +20,11 @@ def convertCSVxBIB(numFile):
         saveFileBIB(numFile)
 
 
-def generatedRoute():
+def generateRoute(carpeta):
     # Generamos una variable de la fecha actual
     today = date.today().strftime("%d_%m_%Y")
     # Creamos una ruta con esa variable de fecha y la carpeta donde se guardarán los archivos
-    ruta = 'bibtexArtsQuartil/{0}/'.format(today)
+    ruta = f"{carpeta}/{today}/"
     # Preguntamos si ya hay una carpeta creada ese día
     if not os.path.isdir(ruta):
         # Creamos una carpeta para guardar los archivos con la fecha actual y una carpeta predeterminada dentro
