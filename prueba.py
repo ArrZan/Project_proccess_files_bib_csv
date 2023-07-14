@@ -5,10 +5,13 @@
 #     {'color': 'Gris', 'matricula': '1892-B', 'cambio': 'M'}
 # ]
 import unidecode as ud
-
+import os
 d_ord = {'uno': 1, 'dos': 5, 'tres': 30, 'cuatro': 3230, 'cinco': 530, 'seis': 450, 'siete': 35, 'ocho': 50}
 d_mess = {'ocho': 50, 'dos': 5, 'cincos': 530, 'seis': 450, 'tres': 30, 'cuatro': 3230, 'uno': 1, 'siete': 35}
 
+from convert_CSV_x_BIB import generateRoute
+
+generateRoute("History Projects")
 
 # def sortDict(dictionary_ordered, dictionary_messy):
 #     orderedData = {}
@@ -25,12 +28,13 @@ d_mess = {'ocho': 50, 'dos': 5, 'cincos': 530, 'seis': 450, 'tres': 30, 'cuatro'
 #
 # sorted_d = sorted(d_ord.values(), reverse=True)
 
-import bibtexparser
-
-with open('prueba2.bib', encoding="utf-8") as bibtex_file:
-    bib_database = bibtexparser.load(bibtex_filePrueb)
-    entries1 = bib_database.get_entry_list()
-print('Artículos: {0} entries in file'.format(len(entries1)))
+"""Intento tomar todos los entries de un bib y no solo articles"""
+# import bibtexparser
+#
+# with open('prueba2.bib', encoding="utf-8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_filePrueb)
+#     entries1 = bib_database.get_entry_list()
+# print('Artículos: {0} entries in file'.format(len(entries1)))
 
 #
 # d.update({'uno': 3})
