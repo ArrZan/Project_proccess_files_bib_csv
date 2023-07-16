@@ -53,13 +53,13 @@ def format_bibtex_entry(entry):
     for field, fmt, wrap in field_order:
         if field in entry:
             # This commented code was to add a counter to the title, as we already put it in code, I comment this.
-            if field == 'title':
-                s += union(field, '{0} {1}'.format(contTitle, entry[field]))
-            else:
-                s1 = '{0}='.format(field)
-                s2 = fmt.format(entry[field])
-                s3 = '{0}{1}'.format(s1, s2)
-                s += s3 + '\n'
+            # if field == 'title':
+            #     s += union(field, '{0} {1}'.format(contTitle, entry[field]))
+            # else:
+            s1 = '{0}='.format(field)
+            s2 = fmt.format(entry[field])
+            s3 = '{0}{1}'.format(s1, s2)
+            s += s3 + '\n'
 
     # We add a new field for quartiles
     s += union('Quartil', 'Undefined')
@@ -147,8 +147,8 @@ def format_bibtex_entry(entry):
 if os.path.exists('merged.bib'):
     os.unlink('merged.bib')
 
-# /////////////////////////////////////////////// Este codigo es para quitar duplicados entre dos archivos y fusionarlos
-#
+"""# /////////////////////////////////////////////// Este codigo es para quitar duplicados entre dos archivos y fusionarlos
+"""
 # with open('scopus.bib', encoding="utf8") as bibtex_file:
 #     bib_database = bibtexparser.load(bibtex_file)
 #     entries1 = bib_database.get_entry_list()
@@ -192,7 +192,7 @@ if os.path.exists('merged.bib'):
 #     entries2 = bib_database.get_entry_list()
 # print('MERGED: {0} entries in file 1'.format(len(entries2)))
 
-# /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo
+"""# /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo"""
 with open('unidos.bib', encoding="utf-8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
     entries1 = bib_database.get_entry_list()
@@ -203,7 +203,7 @@ titleEnt = list(set([entry['title'].upper() for entry in entries1]))
 print('Duplicados: {0} in file 1'.format(len(entries1) - len(titleEnt)))
 
 # Cantidad de titulos seteados
-# print(len(titleEnt))
+print(len(titleEnt))
 
 # Ordenamos los artículos por año de menor a mayor
 OrderEntrys = sorted(entries1, key=lambda artic: int(artic['year']))
@@ -219,12 +219,12 @@ for entry in OrderEntrys:
         titleEnt.remove(entry['title'].upper())
 
 # Se vuelve a abrir el archivo para contar los archivos que quedaron
-# with open('merged.bib', encoding="utf8") as bibtex_file:
-#     bib_database = bibtexparser.load(bibtex_file)
-#     merged = bib_database.get_entry_list()
-# print('MERGED: {0} entries in file 1'.format(len(merged)))
-#
-# # /////////////////////////////////////////////// Aquí reunimos todas las palabras claves
+with open('merged.bib', encoding="utf8") as bibtex_file:
+    bib_database = bibtexparser.load(bibtex_file)
+    merged = bib_database.get_entry_list()
+print('MERGED: {0} entries in file 1'.format(len(merged)))
+
+"""" /////////////////////////////////////////////// Aquí reunimos todas las palabras claves"""
 with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
     keywordsAll.write("keywords;count;" + chr(13))
     for keywords in listaKeys:

@@ -4,16 +4,47 @@
 #     {'color': 'Azul', 'matricula': '2901-Z', 'cambio': 'M'},
 #     {'color': 'Gris', 'matricula': '1892-B', 'cambio': 'M'}
 # ]
-d = ['$ 550,0000', '55025,0000', '5150,0000', '5450,0000', '5502,0000', '1550,0000']
+import unidecode as ud
+import os
+d_ord = {'uno': 1, 'dos': 5, 'tres': 30, 'cuatro': 3230, 'cinco': 530, 'seis': 450, 'siete': 35, 'ocho': 50}
+d_mess = {'ocho': 50, 'dos': 5, 'cincos': 530, 'seis': 450, 'tres': 30, 'cuatro': 3230, 'uno': 1, 'siete': 35}
 
-for i in d:
-    print(i[:-2])
+from convert_CSV_x_BIB import generateRoute
 
-# d = {'uno': 1, 'dos': 5, 'tres': 30, 'cuatro': 3230, 'cinco': 530, 'seis': 450, 'siete': 35, 'ocho': 50}
-# sorted_d = sorted(d.values(), reverse=True)
+generateRoute("History Projects")
+
+# def sortDict(dictionary_ordered, dictionary_messy):
+#     orderedData = {}
+#     # Pregunto si tienen las mismas claves
+#     if set(dictionary_ordered.keys()) != set(dictionary_messy.keys()):
+#         return False
+#
+#     for key in dictionary_ordered:
+#         orderedData[key] = dictionary_messy[key]
+#     return orderedData
+#
+#
+# print(sortDict(d_ord, d_mess))
+#
+# sorted_d = sorted(d_ord.values(), reverse=True)
+
+"""Intento tomar todos los entries de un bib y no solo articles"""
+# import bibtexparser
+#
+# with open('prueba2.bib', encoding="utf-8") as bibtex_file:
+#     bib_database = bibtexparser.load(bibtex_filePrueb)
+#     entries1 = bib_database.get_entry_list()
+# print('Artículos: {0} entries in file'.format(len(entries1)))
+
 #
 # d.update({'uno': 3})
 # print(d)
+#
+# texto = "ID_Mirić201863_1982_"
+# print(texto)
+# print(ud.unidecode(texto))
+
+
 # tos = [(key,value) for key, value in TopAuthors.items() if value >= 700]
 
 # print(sorted_d)
