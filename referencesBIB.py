@@ -1,7 +1,5 @@
 import re
-
 import bibtexparser
-
 import unidecode as ud
 
 # nomarRefSql = "archivos\\referenciasContar"
