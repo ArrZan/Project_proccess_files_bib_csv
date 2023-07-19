@@ -53,12 +53,12 @@ def format_bibtex_entry(entry):
     for field, fmt, wrap in field_order:
         if field in entry:
             # This commented code was to add a counter to the title, as we already put it in code, I comment this.
-            # if field == 'title':
-            #     s += union(field, '{0} {1}'.format(contTitle, entry[field]))
-            # else:
-            s1 = '{0}='.format(field)
-            s2 = fmt.format(entry[field])
-            s3 = '{0}{1}'.format(s1, s2)
+            if field == 'title':
+                s += union(field, '{0} {1}'.format(contTitle, entry[field]))
+            else:
+                s1 = '{0}='.format(field)
+                s2 = fmt.format(entry[field])
+                s3 = '{0}{1}'.format(s1, s2)
             s += s3 + '\n'
 
     # We add a new field for quartiles
