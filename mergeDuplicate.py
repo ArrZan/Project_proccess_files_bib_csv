@@ -59,7 +59,7 @@ def format_bibtex_entry(entry):
                 s1 = '{0}='.format(field)
                 s2 = fmt.format(entry[field])
                 s3 = '{0}{1}'.format(s1, s2)
-            s += s3 + '\n'
+                s += s3 + '\n'
 
     # We add a new field for quartiles
     s += union('Quartil', 'Undefined')

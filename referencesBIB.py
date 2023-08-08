@@ -35,6 +35,7 @@ def addReference(refr, autorArt, anioArt):
 
     data['authors'] = []
 
+
     # Sacamos el primer y último autor en caso que exista sino 'vacío'
     if len(authors) > 1:
         # Agregamos todos los autores
@@ -78,16 +79,24 @@ def addReferenceWoS(refr, autorArt, anioArt):
     tempRef = refr.split(',')
 
     # Variable para indicar si existe y toma el valor del año
-    yearExiste = re.search(r'(\d{4})', tempRef[1])
+    if len(tempRef) > 1:
+        yearExiste = re.search(r'(\d{4})', tempRef[1])
+        yearRef = vacio if yearExiste is None else yearExiste.group(1)
+    else:
+        yearRef = vacio
+
+    autorRef = tempRef[0]
 
     if tempRef[0] is not vacio:
-        # Añadir los autores
-        TopAuthors[tempRef[0]] = tempRef[0] + 1 if tempRef[0] in TopAuthors else 1
+        if "Anonymous" not in tempRef[0]:
+            # Añadir los autores
+            TopAuthors[autorRef] = TopAuthors[autorRef] + 1 if autorRef in TopAuthors else 1
+        else:
+            autorRef = "anonimo"
 
     # Si es None, pondrá vacio, si no tomará el año
-    yearRef = vacio if yearExiste is None else yearExiste.group(1)
 
-    return f'"{anioArt}","{autorArt}","{yearRef}","{tempRef[0]}","{tempRef[0]}","{tempRef[0]}","{conArc}","1","{refr}"\n'
+    return f'"{anioArt}","{autorArt}","{yearRef}","{autorRef}","{autorRef}","{autorRef}","{conArc}","1","{refr}"\n'
 
 
 '''/////////////////////////////////////////////// Codigo para leer un archivo bib, iterar cada articulo
