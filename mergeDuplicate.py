@@ -147,6 +147,40 @@ def format_bibtex_entry(entry):
 if os.path.exists('merged.bib'):
     os.unlink('merged.bib')
 
+"""# /////////////////////////////////////////////// Este codigo une los archivos"""
+# pathSource = 'input Files/'   # Ruta de donde se guardan los archivos en bruto para recogerlos y procesarlos
+# pathDestination = 'Output Files/'  # Ruta donde se guardan los datos procesados del path por ejecución de un proyecto
+# pathProject = 'History Projects/'  # Ruta donde se guardan todos los proyectos
+# pathUnidos = pathDestination + 'unidos.bib'  # La ruta y nombre del archivo que unirá todos los archivos del path
+# fileNames = os.listdir(pathSource)  # Saco una lista de los archivos que haya en el path
+#
+# # Se pregunta si existe el directorio de salida de los archivos, si no, se creará
+# try:
+#     if not os.path.isdir(pathDestination):
+#         os.mkdir(pathDestination)
+#     else:
+#
+#         # filesNamesOut = os.listdir(pathDestination)
+#         # filesExists = len(filesNamesOut) != 0
+#         if filesExists:
+#             for name in filesNamesOut:
+#                 shutil.move(pathSource, pathProject)
+#
+#         # Se crea el nuevo archivo
+#         with open(pathUnidos, "w", encoding='utf-8') as new_file:
+#             # Se itera los nombres de los archivos en el path
+#             for name in fileNames:
+#                 rootFile = pathSource + name
+#                 with open(rootFile, encoding='utf-8') as file:
+#                     for line in file:
+#                         new_file.write(line)
+#
+#                     new_file.write("\n")
+#
+# except FileNotFoundError as msgErr:
+#     print('No existe el directorio: ', msgErr)
+
+
 """# /////////////////////////////////////////////// Este codigo es para quitar duplicados entre dos archivos y fusionarlos
 """
 # with open('scopus.bib', encoding="utf8") as bibtex_file:

@@ -111,6 +111,21 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
     # Genero el archivo y la cabecera para guardar toda la info
     with open(nomarRef + "1.csv", "w", encoding="utf-8") as arRef:
+        """"AÑADIR UNA NUEVA COLUMNA LLAMADA TITLE
+        
+            EXTRAER LA FRECUENCIA DE LOS TITULOS QUE SE REPITEN,
+            COMO TIENEN MINÚSCULAS Y MAYÚSCULAS, TILDES, YA QUE ESTAS
+            COMPLICAN A LA HORA DE VER QUE TANTO SE REPITEN.
+                        
+            Agency Theory of last, CEO 
+            Agency Theory of Last, CEO 
+            agency theory of last, Ceo 
+        
+            VER QUE TANTO SE PARECEN UNAS CADENAS DE CARACTERES COMO LA DE ARRIBA
+            BUSCAR EL NIVEL DE SIMILITUD ENTRE REFERENCIAS PARA SACAR UNA FRECUENCIA.
+            
+        
+        """
         arRef.write("yearArticle, authorArticle, year, authorFirst, authorLast, authors, article, number, line\n")
 
     # Genero el archivo de errores
