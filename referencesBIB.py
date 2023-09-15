@@ -14,6 +14,10 @@ ArtSinRef = 0  # Contador para los artículos sin referencia
 
 TopAuthors = {}  # Diccionario de los autores y de la cantidad de veces que fueron referenciados
 
+# Lista de diccionarios, con lista de diccionarios y así hasta 9 veces en total con todos:
+# [{indice: [{autor: [{year: [{autores: [title1, ... title n]}]}]}]}]
+indice = []
+
 
 def addReference(refr, autorArt, anioArt):
     # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
@@ -26,7 +30,7 @@ def addReference(refr, autorArt, anioArt):
 
     tempRef = refr
     # Buscamos los autores de la línea con el siguiente regex
-    authors = re.findall(r'([a-zA-ZÀ-ÿ .-]+,\s([A-Z].-[A-Z].|[A-Z].)+)+,\s', tempRef)
+    authors = re.findall(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)),", tempRef)
     # Extraemos el año siempre que sea mayor a 1000 o menor 2999
     yearExiste = re.search(r'\(([1-2]\d{3})\)', tempRef)
 
@@ -34,7 +38,6 @@ def addReference(refr, autorArt, anioArt):
     yearRef = vacio if yearExiste is None else yearExiste.group(1)
 
     data['authors'] = []
-
 
     # Sacamos el primer y último autor en caso que exista sino 'vacío'
     if len(authors) > 1:
@@ -117,13 +120,18 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
             COMO TIENEN MINÚSCULAS Y MAYÚSCULAS, TILDES, YA QUE ESTAS
             COMPLICAN A LA HORA DE VER QUE TANTO SE REPITEN.
                         
-            Agency Theory of last, CEO 
-            Agency Theory of Last, CEO 
-            agency theory of last, Ceo 
-        
+            Carl M., (2000) Agency Theory of last, CEO, california
+            Carl M., (2000) Agency Theory of Last, CEO, , america
+            Carl M., (2000) agency theory of last, Ceo, journal
+            Carl M., agency theory of last, Ceo (2000)
+            Famm S., Crish S., (1997) the firm of
+            Famm S., Crish S., the firm of (1997)
+            Famm S., Crish S., (1997) the Firm of, calif 
+            Famm S., Crish S., (1997) The Firm Of, cali
+            Bar C, the firm of (2000)
+            
             VER QUE TANTO SE PARECEN UNAS CADENAS DE CARACTERES COMO LA DE ARRIBA
             BUSCAR EL NIVEL DE SIMILITUD ENTRE REFERENCIAS PARA SACAR UNA FRECUENCIA.
-            
         
         """
         arRef.write("yearArticle, authorArticle, year, authorFirst, authorLast, authors, article, number, line\n")
@@ -236,6 +244,7 @@ def sortDict(dictionary_ordered, dictionary_messy):
         orderedData[key] = dictionary_messy[key]
     return orderedData
 
+
 abstractsAutOrder = sortDict(Top10Authors, abstractsAut)
 cont = 1
 if abstractsAutOrder:
@@ -248,7 +257,7 @@ if abstractsAutOrder:
                 fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
         cont += 1
 
-print("*"*20,f"Reporte del Top de {Top} autores","*"*20)
+print("*" * 20, f"Reporte del Top de {Top} autores", "*" * 20)
 print("Autor | Conteo")
 for autor, conteo in Top10Authors.items():
     print(f"{autor}: {conteo}")
