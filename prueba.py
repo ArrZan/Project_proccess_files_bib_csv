@@ -144,3 +144,12 @@ print(fuzz.token_set_ratio(title.lower(), title2.lower()))
 # # Imprime los títulos similares
 # for title, similarity_score in similar_titles.items():
 #     print(f"Título: {title} (Puntaje de similitud: {similarity_score}%)")
+
+
+import re
+
+ref = 'INT BLACK SEA CONF.'
+
+refMatch = re.search(r'(DOI)\s(.+)', ref)
+
+print(refMatch)

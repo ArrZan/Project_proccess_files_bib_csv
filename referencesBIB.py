@@ -16,7 +16,7 @@ TopAuthors = {}  # Diccionario de los autores y de la cantidad de veces que fuer
 
 # Lista de diccionarios, con lista de diccionarios y así hasta 9 veces en total con todos:
 # [{indice: [{autor: [{year: [{autores: [title1, ... title n]}]}]}]}]
-indice = []
+index = {}
 
 
 def addReference(refr, autorArt, anioArt):
@@ -61,7 +61,17 @@ def addReference(refr, autorArt, anioArt):
         # Añadir los autores
         TopAuthors[primerAutor] = TopAuthors[primerAutor] + 1 if primerAutor in TopAuthors else 1
 
-    return f'"{anioArt}","{autorArt}","{yearRef}","{data["authors"][0]}","{data["authors"][-1]}","{tempauts}","{conArc}","1","{refr}"\n'
+    "(1987) Annual Franchise 500, 15, pp. 98-183. , Entrepreneur Magazine Jan. Vol. 14 (Jan. 1986), pp. 55-133"
+    "Burton, R.M., Obel, B., (1977) The multilevel approach to organizational issues of the firm—a critical review, 5 (4), pp. 395-414. , Omega"
+    "Akerloff, G., The market for “lemons”: Qualitative uncertainty and the market mechanism (1970) Quarterly Journal of Economics, , Aug"
+
+    data['firstAuthor'] = primerAutor
+    data['year'] = yearRef
+    data['refr'] = refr
+    data[
+        'line'] = f'"{anioArt}","{autorArt}","{yearRef}","{data["authors"][0]}","{data["authors"][-1]}","{tempauts}","{conArc}","1","{refr}"\n'
+
+    return data
 
 
 def quest_name_refer(articulo):
@@ -77,6 +87,7 @@ def quest_name_refer(articulo):
 def addReferenceWoS(refr, autorArt, anioArt):
     # Transformo los caracteres con diéresis a su forma básica (ä -> a)
     ud.unidecode(refr)
+    data = {}
 
     # Separamos los campos de la referencia
     tempRef = refr.split(',')
@@ -95,18 +106,43 @@ def addReferenceWoS(refr, autorArt, anioArt):
             # Añadir los autores
             TopAuthors[autorRef] = TopAuthors[autorRef] + 1 if autorRef in TopAuthors else 1
         else:
-            autorRef = "anonimo"
+            autorRef = vacio
 
-    # Si es None, pondrá vacio, si no tomará el año
+    DOIexiste = re.search(r'(DOI)\s(.+)', tempRef[-1])
+    DOI = tempRef[-1] if DOIexiste is None else DOIexiste.group(2)
 
-    return f'"{anioArt}","{autorArt}","{yearRef}","{autorRef}","{autorRef}","{autorRef}","{conArc}","1","{refr}"\n'
+    data["firstAuthor"] = autorRef
+    data["authors"] = autorRef
+    data["year"] = yearRef
+    data["title"] = DOI
+    data[
+        "line"] = f'"{anioArt}","{autorArt}","{yearRef}","{autorRef}","{autorRef}","{autorRef}","{conArc}","1","{refr}"\n'
+
+    return data
+
+
+def groupingTitles(f_author, authors, year, refr, f_lett):
+    if f_author != vacio:
+        if f_lett.lower() in index:
+            if f_author in index[f_lett]:
+                if year in index[f_lett][f_author]:
+                    if authors in index[f_lett][f_author][year]:
+
+
+
+        # for letters in index:
+        #     if letters['indice'] == f_lett:
+        #         for authors_i in letters[f_lett]:
+        #             if authors_i['authors'] == f_author:
+        #     else:
+
+    else:
+        print(refr)
 
 
 '''/////////////////////////////////////////////// Codigo para leer un archivo bib, iterar cada articulo
 e ir extrayendo las referencias para extraer los autores de la referencia, el año y la referencia misma
 para añadirla como columna.'''
-
-listArticulos = []
 
 with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma el archivo
     bib_database = bibtexparser.load(bibtex_file)
@@ -114,7 +150,7 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
     # Genero el archivo y la cabecera para guardar toda la info
     with open(nomarRef + "1.csv", "w", encoding="utf-8") as arRef:
-        """"AÑADIR UNA NUEVA COLUMNA LLAMADA TITLE
+        """ AÑADIR UNA NUEVA COLUMNA LLAMADA TITLE
         
             EXTRAER LA FRECUENCIA DE LOS TITULOS QUE SE REPITEN,
             COMO TIENEN MINÚSCULAS Y MAYÚSCULAS, TILDES, YA QUE ESTAS
@@ -151,10 +187,10 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
             autor = vacio
 
         # Tomo el primer autor
-        autor = autor.split(' and ')[0]
+        autorArt = autor.split(' and ')[0]
 
         # Tomo el año si existe
-        year = articulo['year'] if 'year' in articulo else vacio
+        yearArt = articulo['year'] if 'year' in articulo else vacio
 
         formatReferencia = quest_name_refer(articulo)
 
@@ -166,7 +202,7 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
             for refer in listRefers:
                 if formatReferencia == 'cited-references' and 'No title captured' not in refer:
                     # Separamos los datos de la referencia por los campos que tenemos
-                    lineSave = addReferenceWoS(refer, autor, year)
+                    dataRef = addReferenceWoS(refer, autorArt, yearArt)
                 else:
                     if re.search(r',', refer) is None:  # Preguntamos si no es un valor bruto
                         # Si está dañado se lo guarda en este archivo
@@ -174,11 +210,19 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
                             refDan.write(refer + "\n")
                     else:
                         # Separamos los datos de la referencia por los campos que tenemos
-                        lineSave = addReference(refer, autor, year)
+                        dataRef = addReference(refer, autorArt, yearArt)
 
                 # Añadimos la referencia al archivo
                 with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
-                    arRef.write(lineSave)
+                    arRef.write(dataRef['line'])
+
+                # Proceso para titulos duplicados de las referencias de un artículo
+                # En algún momento si se ve necesario preguntaremos si queremos hacer este proceso u obviarlo,
+                # para disminuir tiempos.
+
+                # if decission:
+                groupingTitles(dataRef['firstAuthor'], dataRef['authors'], dataRef['year'], dataRef['refr'],
+                               dataRef['refr'][0])
 
         else:
             daniados.append(articulo)
