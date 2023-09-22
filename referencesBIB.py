@@ -65,6 +65,8 @@ def addReference(refr, autorArt, anioArt):
     "Burton, R.M., Obel, B., (1977) The multilevel approach to organizational issues of the firm—a critical review, 5 (4), pp. 395-414. , Omega"
     "Akerloff, G., The market for “lemons”: Qualitative uncertainty and the market mechanism (1970) Quarterly Journal of Economics, , Aug"
 
+
+
     data['firstAuthor'] = primerAutor
     data['year'] = yearRef
     data['refr'] = refr
@@ -121,13 +123,13 @@ def addReferenceWoS(refr, autorArt, anioArt):
     return data
 
 
-def groupingTitles(f_author, authors, year, refr, f_lett):
+def groupingTitles(f_author, authors, year, title, f_lett):
     if f_author != vacio:
         if f_lett.lower() in index:
             if f_author in index[f_lett]:
                 if year in index[f_lett][f_author]:
                     if authors in index[f_lett][f_author][year]:
-
+                        if title in index[f_lett][f_author][year][authors]:
 
 
         # for letters in index:
