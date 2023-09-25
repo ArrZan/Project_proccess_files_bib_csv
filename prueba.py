@@ -109,8 +109,6 @@ references = [
     "Bar C, the firm of (2000)"
 ]
 
-
-
 title = "the Firm of, (1997)"
 title2 = "Carl M., (2000) Agency Theory of last, CEO, california"
 
@@ -148,8 +146,65 @@ print(fuzz.token_set_ratio(title.lower(), title2.lower()))
 
 import re
 
-ref = 'INT BLACK SEA CONF.'
+vacio = "Vacio"
 
-refMatch = re.search(r'(DOI)\s(.+)', ref)
+""" Proceso para la tercera opción del titulo"""
+ref = "Burton, R.M., Obel, B., (1977) The multilevel approach to organizational issues of the firm—a critical review, 5 (4), pp. 395-414. , Omega"
+# refMatch = re.search(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)), (.)+\(([1-2]\d{3})\)", ref)
+#
+# # Buscamos los autores de la línea con el siguiente regex
+# authors = re.findall(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)),", ref)
+#
+# posLastAut = authors[-1][0]
+# posTitle = refMatch.group().find(posLastAut) + len(posLastAut) + 1  # Sumamos 1 por la coma final de autores
+# title = refMatch.group()[posTitle:-6]  # Restamos 6 por el len del year
 
-print(refMatch)
+"""Como estamos en prueba, debemos ver cuales valores no lee para adentrarlo en el patron"""
+
+
+# ref = "(1991) Measuring and controlling large credit exposures, , January 1991"
+
+refMatch = re.search(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)), (.)+\(([1-2]\d{3})\)", ref)
+
+# Extraemos el año siempre que sea mayor a 1000 o menor 2999
+yearExiste = re.search(r'\(([1-2]\d{3})\)', ref)
+
+# Si es None, pondrá vacio, si no tomará el año
+yearRef = vacio if yearExiste is None else yearExiste.group(1)
+
+
+authors = re.findall(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)),", ref)
+
+posLastAut = 0
+
+for author in authors:
+    posLastAut = posLastAut + len(author[0]) + 2
+
+posYear = yearExiste.regs[0][1]
+
+# Si el año está al comienzo... year, author, title
+if yearExiste.regs[0][0] == 0:
+    posComa = ref.find(",")
+    title = ref[posYear + 1:posComa]  # Sumamos 1 por la coma o espacio
+# Si el año está en la mitad... author, year, title
+elif "," in ref[posYear-9:posYear]:
+    if re.search(r',\s\d+\s\(\d+\)', ref) is not None:
+        posVolNum = re.search(r',\s\d+\s\(\d+\)', ref).group()
+        posEnd = ref[posYear:].find(posVolNum)
+    elif ", pp" in ref:
+        posEnd = ref[posYear:].find(", pp")
+    elif ", ," in ref:
+        posEnd = ref[posYear:].find(", ,")
+    else:
+        posEnd = ref[posYear:].find(",")
+
+    title = ref[posYear:posEnd+posYear]
+else:
+    title = ref[posLastAut:posYear-6]  # Restamos por el len de year
+
+print(title)
+print(authors)
+print(yearRef)
+print(ref)
+
+""

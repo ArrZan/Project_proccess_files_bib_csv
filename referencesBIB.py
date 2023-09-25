@@ -18,6 +18,7 @@ TopAuthors = {}  # Diccionario de los autores y de la cantidad de veces que fuer
 # [{indice: [{autor: [{year: [{autores: [title1, ... title n]}]}]}]}]
 index = {}
 
+pruebas = []
 
 def addReference(refr, autorArt, anioArt):
     # Guardaremos los datos extraídos de la referencia (year,authorFirst, authorLast, authors,article,number,line)
@@ -31,6 +32,7 @@ def addReference(refr, autorArt, anioArt):
     tempRef = refr
     # Buscamos los autores de la línea con el siguiente regex
     authors = re.findall(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)),", tempRef)
+
     # Extraemos el año siempre que sea mayor a 1000 o menor 2999
     yearExiste = re.search(r'\(([1-2]\d{3})\)', tempRef)
 
@@ -61,10 +63,38 @@ def addReference(refr, autorArt, anioArt):
         # Añadir los autores
         TopAuthors[primerAutor] = TopAuthors[primerAutor] + 1 if primerAutor in TopAuthors else 1
 
-    "(1987) Annual Franchise 500, 15, pp. 98-183. , Entrepreneur Magazine Jan. Vol. 14 (Jan. 1986), pp. 55-133"
-    "Burton, R.M., Obel, B., (1977) The multilevel approach to organizational issues of the firm—a critical review, 5 (4), pp. 395-414. , Omega"
-    "Akerloff, G., The market for “lemons”: Qualitative uncertainty and the market mechanism (1970) Quarterly Journal of Economics, , Aug"
-
+    # posLastAut = 0
+    #
+    # for author in authors:
+    #     posLastAut = posLastAut + len(author[0]) + 2
+    #
+    # if yearRef != vacio:
+    #     posYear = yearExiste.regs[0][1]
+    #     # Si el año está al comienzo... year, author, title
+    #     if yearExiste.regs[0][0] == 0:
+    #         posComa = refr.find(",")
+    #         title = refr[posYear + 1:posComa]  # Sumamos 1 por la coma o espacio
+    #     # Si el año está en la mitad... author, year, title
+    #     elif "," in refr[posYear - 9:posYear]:
+    #         if re.search(r',\s\d+\s\(\d+\)', refr) is not None:
+    #             posVolNum = re.search(r',\s\d+\s\(\d+\)', refr).group()
+    #             posEnd = refr[posYear:].find(posVolNum)
+    #         elif ", pp" in refr:
+    #             posEnd = refr[posYear:].find(", pp")
+    #         elif ", ," in refr:
+    #             posEnd = refr[posYear:].find(", ,")
+    #         else:
+    #             posEnd = refr[posYear:].find(",")
+    #
+    #         title = refr[posYear:posEnd + posYear]
+    #     else:
+    #         title = refr[posLastAut:posYear - 6]  # Restamos por el len de year
+    #     print(title)
+    #     print(authors)
+    #     print(yearRef)
+    #     print(refr,"\n")
+    # else:
+    #     pruebas.append(refr)
 
 
     data['firstAuthor'] = primerAutor
@@ -130,7 +160,7 @@ def groupingTitles(f_author, authors, year, title, f_lett):
                 if year in index[f_lett][f_author]:
                     if authors in index[f_lett][f_author][year]:
                         if title in index[f_lett][f_author][year][authors]:
-
+                            pass
 
         # for letters in index:
         #     if letters['indice'] == f_lett:
@@ -138,8 +168,8 @@ def groupingTitles(f_author, authors, year, title, f_lett):
         #             if authors_i['authors'] == f_author:
         #     else:
 
-    else:
-        print(refr)
+    # else:
+        # print(refr)
 
 
 '''/////////////////////////////////////////////// Codigo para leer un archivo bib, iterar cada articulo
@@ -234,76 +264,93 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 print('Articulos: ', conArc)
 print('Dañados: ', len(daniados))
 
-'''/////////////////////////////////////////////// Codigo para sacar los autores top.'''
-# Ordeno (sorted) el TopAuthors de mayor a menor por valor
-sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
+for pr in pruebas:
+    print(pr)
 
-# Creo el top donde guardaré los primeros 10 autores más referenciados
-Top10Authors = {}
-Top = 10  # Coloco el top que deseo, puede ser el top 100 o 5
+"""/////////////////////////////"""
+print("REFERENCIAS EXTRAIDAS")
+"""/////////////////////////////"""
 
-# Añado los 10 autores y su cantidad
-for key, quant in sortedAuthors.items():
-    # Pregunto por el top
-    if len(Top10Authors) < Top:
-        Top10Authors[key] = quant
-    else:
-        # Salgo cuando los tenga a los 10
-        break
-
-'''/////////////////////////////////////////////// Codigo para guardar el abstract de los 10 autores.'''
-
-# Guardamos los autores(como key) y año y abstract's (como value en una lista)
-abstractsAut = {}
-
-for article in listArticulos:
-    # Preguntamos si existe un abstract en el artículo
-    if 'abstract' in article:
-        formatReferencia = quest_name_refer(article)
-        if formatReferencia:
-            for autor in Top10Authors:
-                # Se pregunta si el autor iterado del Top está dentro de las referencias del artículo
-                if autor in article[formatReferencia]:
-                    # Codigo y el abstracto convertido con unidecode
-                    codeArticle = ud.unidecode(article['code'])
-                    abstractArticle = ud.unidecode(article['abstract'])
-                    # Si existe se añadirá una  nueva referencia
-                    if autor in abstractsAut:
-                        abstractsAut[autor][1].update({codeArticle: abstractArticle})
-                    else:
-                        # Si no, se lo crea
-                        abstractsAut[autor] = [article['year'], {codeArticle: abstractArticle}]
-                        # articleExists = True
-
-        # file_Text.write("**** *")
-
-
-# Ordeno un diccionario desordenado comparándolo con otro igual (llaves iguales) pero ordenado
-def sortDict(dictionary_ordered, dictionary_messy):
-    orderedData = {}
-    # Pregunto si tienen las mismas claves
-    if set(dictionary_ordered.keys()) != set(dictionary_messy.keys()):
-        return False
-
-    # Itero para ordenarlo en caso las llaves sean iguales
-    for key in dictionary_ordered:
-        orderedData[key] = dictionary_messy[key]
-    return orderedData
-
-
-abstractsAutOrder = sortDict(Top10Authors, abstractsAut)
-cont = 1
-if abstractsAutOrder:
-    for key, content in abstractsAutOrder.items():
-        abstracts = content[1]
-        # Guardamos por cada autor los abstract en un solo archivo de texto
-        with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
-            # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
-            for key2, abstract in abstracts.items():
-                fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
-        cont += 1
-
-print("*" * 20, f"Reporte del Top de {Top} autores", "*" * 20)
-print("Autor | Conteo")
-for autor, conteo in Top10Authors.items():
-    print(f"{autor}: {conteo}")
+#
+# '''/////////////////////////////////////////////// Codigo para sacar los autores top.'''
+# # Ordeno (sorted) el TopAuthors de mayor a menor por valor
+# sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
+#
+# # Creo el top donde guardaré los primeros 10 autores más referenciados
+# Top10Authors = {}
+# Top = 10  # Coloco el top que deseo, puede ser el top 100 o 5
+#
+# # Añado los 10 autores y su cantidad
+# for key, quant in sortedAuthors.items():
+#     # Pregunto por el top
+#     if len(Top10Authors) < Top:
+#         Top10Authors[key] = quant
+#     else:
+#         # Salgo cuando los tenga a los 10
+#         break
+#
+# """/////////////////////////////"""
+# print("Top listo")
+# """/////////////////////////////"""
+#
+# '''/////////////////////////////////////////////// Codigo para guardar el abstract de los 10 autores.'''
+#
+# # Guardamos los autores(como key) y año y abstract's (como value en una lista)
+# abstractsAut = {}
+#
+# for article in listArticulos:
+#     # Preguntamos si existe un abstract en el artículo
+#     if 'abstract' in article:
+#         formatReferencia = quest_name_refer(article)
+#         if formatReferencia:
+#             for autor in Top10Authors:
+#                 # Se pregunta si el autor iterado del Top está dentro de las referencias del artículo
+#                 if autor in article[formatReferencia]:
+#                     # Codigo y el abstracto convertido con unidecode
+#                     codeArticle = ud.unidecode(article['code'])
+#                     abstractArticle = ud.unidecode(article['abstract'])
+#                     # Si existe se añadirá una  nueva referencia
+#                     if autor in abstractsAut:
+#                         abstractsAut[autor][1].update({codeArticle: abstractArticle})
+#                     else:
+#                         # Si no, se lo crea
+#                         abstractsAut[autor] = [article['year'], {codeArticle: abstractArticle}]
+#                         # articleExists = True
+#
+#         # file_Text.write("**** *")
+#
+#
+# # Ordeno un diccionario desordenado comparándolo con otro igual (llaves iguales) pero ordenado
+# def sortDict(dictionary_ordered, dictionary_messy):
+#     orderedData = {}
+#     # Pregunto si tienen las mismas claves
+#     if set(dictionary_ordered.keys()) != set(dictionary_messy.keys()):
+#         return False
+#
+#     # Itero para ordenarlo en caso las llaves sean iguales
+#     for key in dictionary_ordered:
+#         orderedData[key] = dictionary_messy[key]
+#     return orderedData
+#
+#
+# abstractsAutOrder = sortDict(Top10Authors, abstractsAut)
+# cont = 1
+# if abstractsAutOrder:
+#     for key, content in abstractsAutOrder.items():
+#         abstracts = content[1]
+#         # Guardamos por cada autor los abstract en un solo archivo de texto
+#         with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
+#             # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
+#             for key2, abstract in abstracts.items():
+#                 fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
+#         cont += 1
+#
+# print("*" * 20, f"Reporte del Top de {Top} autores", "*" * 20)
+# print("Autor | Conteo")
+# for autor, conteo in Top10Authors.items():
+#     print(f"{autor}: {conteo}")
+#
+#
+# """/////////////////////////////"""
+# print("Abstracts listos")
+# """/////////////////////////////"""
