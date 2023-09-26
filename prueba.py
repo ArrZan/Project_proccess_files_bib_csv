@@ -149,7 +149,8 @@ import re
 vacio = "Vacio"
 
 """ Proceso para la tercera opción del titulo"""
-ref = "Burton, R.M., Obel, B., (1977) The multilevel approach to organizational issues of the firm—a critical review, 5 (4), pp. 395-414. , Omega"
+ref = "Himmelberg, C. P., Petersen, B. C., R & D and Internal Finance: A Panel Study of Small Firms in High-Tech Industries (1994) The Review of Economics and Statistics, 76 (1), pp. 38-51"
+
 # refMatch = re.search(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)), (.)+\(([1-2]\d{3})\)", ref)
 #
 # # Buscamos los autores de la línea con el siguiente regex
@@ -164,7 +165,7 @@ ref = "Burton, R.M., Obel, B., (1977) The multilevel approach to organizational 
 
 # ref = "(1991) Measuring and controlling large credit exposures, , January 1991"
 
-refMatch = re.search(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)), (.)+\(([1-2]\d{3})\)", ref)
+refMatch = re.search(r"(([-\w'? ]+),\s(([A-Z-]\.?\s?)+)),", ref)
 
 # Extraemos el año siempre que sea mayor a 1000 o menor 2999
 yearExiste = re.search(r'\(([1-2]\d{3})\)', ref)
