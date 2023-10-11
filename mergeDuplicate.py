@@ -1,6 +1,6 @@
+import csv
 import os
-
-from libs import deleteKeyDuplicated
+from libs import libMerged as lm
 import bibtexparser
 
 vacias = 0
@@ -20,10 +20,22 @@ listKwa = {}  # Lista de author keywords
 contTitle = 1  # Contador para poner al lado del titulo
 
 
-def union(key, entrykey):
-    s1 = '{0}='.format(key)
-    s3 = '{0}{{{1}}},'.format(s1, entrykey)
-    return s3 + '\n'
+def addQuartile(journal, issn, eissn):
+    with open("scimagojr 2022.csv", encoding="utf8") as csv_file:
+        # Crea un objeto reader similar a un diccionario delimitado por la barra |
+        scimagoFile = csv.DictReader(csv_file, delimiter=';')
+
+        for row in scimagoFile:
+            if issn and issn.replace("-", "") in row["Issn"]:
+                return row["SJR Best Quartile"]
+
+            if eissn and eissn.replace("-", "") == row["Issn"]:
+                return row["SJR Best Quartile"]
+
+            if journal.upper() == row["Title"].upper():
+                return row["SJR Best Quartile"]
+
+        return "Undefined"
 
 
 def format_bibtex_entry(entry):
@@ -54,15 +66,17 @@ def format_bibtex_entry(entry):
         if field in entry:
             # This commented code was to add a counter to the title, as we already put it in code, I comment this.
             if field == 'title':
-                s += union(field, '{0} {1}'.format(contTitle, entry[field]))
+                s += lm.union(field, '{0} {1}'.format(contTitle, entry[field]))
             else:
                 s1 = '{0}='.format(field)
                 s2 = fmt.format(entry[field])
                 s3 = '{0}{1}'.format(s1, s2)
                 s += s3 + '\n'
 
-    # We add a new field for quartiles
-    s += union('Quartil', 'Undefined')
+    eissn = entry["eissn"] if "eissn" in entry else None
+
+    # We add a new field for quartiles :p
+    s += lm.union('Quartil', addQuartile(journal=entry["journal"], issn=entry["issn"], eissn=eissn))
 
     keyword = 0
     keywords_plus = 0
@@ -74,63 +88,63 @@ def format_bibtex_entry(entry):
             if field == kw:
                 keyword = 1
                 tempKeys[field] = entry[field]
-                listaKeys = deleteKeyDuplicated.keyDel(entry[field], listaKeys)
-                listKw = deleteKeyDuplicated.keyDel(entry[field], listKw)
+                listaKeys = lm.keyDel(entry[field], listaKeys)
+                listKw = lm.keyDel(entry[field], listKw)
             elif field == kwp:
                 keywords_plus = 1
                 tempKeys[field] = entry[field]
-                listaKeys = deleteKeyDuplicated.keyDel(entry[field], listaKeys)
-                listKwp = deleteKeyDuplicated.keyDel(entry[field], listKwp)
+                listaKeys = lm.keyDel(entry[field], listaKeys)
+                listKwp = lm.keyDel(entry[field], listKwp)
             elif field == kwa:
                 author_keywords = 1
                 tempKeys[field] = entry[field]
-                listaKeys = deleteKeyDuplicated.keyDel(entry[field], listaKeys)
-                listKwa = deleteKeyDuplicated.keyDel(entry[field], listKwa)
+                listaKeys = lm.keyDel(entry[field], listaKeys)
+                listKwa = lm.keyDel(entry[field], listKwa)
 
             if field != kw and field != kwp and field != kwa:
-                s += union(field, entry[field])
+                s += lm.union(field, entry[field])
 
     if (keyword + keywords_plus + author_keywords) == 0:
         vacias += 1
 
-        s += union(kw, " ")  # Keywords
-        s += union(kwp, " ")  # keywords-plus
-        s += union(kwa, " ")  # author_keywords
+        s += lm.union(kw, " ")  # Keywords
+        s += lm.union(kwp, " ")  # keywords-plus
+        s += lm.union(kwa, " ")  # author_keywords
 
     elif keyword == 0 and keywords_plus == 0 and author_keywords == 1:
-        s += union(kw, " ")
-        s += union(kwp, tempKeys[kwa])
-        s += union(kwa, " ")
+        s += lm.union(kw, " ")
+        s += lm.union(kwp, tempKeys[kwa])
+        s += lm.union(kwa, " ")
 
     elif keyword == 0 and keywords_plus == 1 and author_keywords == 0:
-        s += union(kw, " ")
-        s += union(kwp, entry[kwp])
-        s += union(kwa, " ")
+        s += lm.union(kw, " ")
+        s += lm.union(kwp, entry[kwp])
+        s += lm.union(kwa, " ")
 
     elif keyword == 0 and keywords_plus == 1 and author_keywords == 1:
-        s += union(kw, " ")
-        s += union(kwp, tempKeys[kwp] + " ; " + tempKeys[kwa])
-        s += union(kwa, entry[kwa])
+        s += lm.union(kw, " ")
+        s += lm.union(kwp, tempKeys[kwp] + " ; " + tempKeys[kwa])
+        s += lm.union(kwa, entry[kwa])
 
     elif keyword == 1 and keywords_plus == 0 and author_keywords == 0:
-        s += union(kw, " ")
-        s += union(kwp, tempKeys[kw])
-        s += union(kwa, " ")
+        s += lm.union(kw, " ")
+        s += lm.union(kwp, tempKeys[kw])
+        s += lm.union(kwa, " ")
 
     elif keyword == 1 and keywords_plus == 0 and author_keywords == 1:
-        s += union(kw, entry[kw])
-        s += union(kwp, tempKeys[kw] + " ; " + tempKeys[kwa])
-        s += union(kwa, entry[kwa])
+        s += lm.union(kw, entry[kw])
+        s += lm.union(kwp, tempKeys[kw] + " ; " + tempKeys[kwa])
+        s += lm.union(kwa, entry[kwa])
 
     elif keyword == 1 and keywords_plus == 1 and author_keywords == 0:
-        s += union(kw, entry[kw])
-        s += union(kwp, tempKeys[kwp] + " ; " + tempKeys[kw])
-        s += union(kwa, " ")
+        s += lm.union(kw, entry[kw])
+        s += lm.union(kwp, tempKeys[kwp] + " ; " + tempKeys[kw])
+        s += lm.union(kwa, " ")
 
     elif keyword == 1 and keywords_plus == 1 and author_keywords == 1:
-        s += union(kw, entry[kw])
-        s += union(kwp, tempKeys[kw] + " ; " + tempKeys[kwp] + " ; " + tempKeys[kwa])
-        s += union(kwa, entry[kwa])
+        s += lm.union(kw, entry[kw])
+        s += lm.union(kwp, tempKeys[kw] + " ; " + tempKeys[kwp] + " ; " + tempKeys[kwa])
+        s += lm.union(kwa, entry[kwa])
 
     if keyword == 0:
         kwvacia += 1  # Contador de keywords vacíos
@@ -258,7 +272,7 @@ with open('merged.bib', encoding="utf8") as bibtex_file:
     merged = bib_database.get_entry_list()
 print('MERGED: {0} entries in file 1'.format(len(merged)))
 
-"""" /////////////////////////////////////////////// Aquí reunimos todas las palabras claves"""
+"""" /////////////////////////////////////////////// Aquí reunimos y guardamos todas las palabras claves"""
 with open("keywordsAllList.csv", "w", encoding='utf-8') as keywordsAll:
     keywordsAll.write("keywords;count;" + chr(13))
     for keywords in listaKeys:

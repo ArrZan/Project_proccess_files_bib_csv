@@ -6,9 +6,11 @@ from bibtexparser.bibdatabase import BibDatabase
 db = BibDatabase()
 
 
+""" Convertidor de archivo bib a csv """
+
 # Conversión de un archivo CSV a BIB
 def convertCSVxBIB(numFile):
-    with open("filesCSV/arts{0}.csv".format(numFile), encoding="utf8") as csv_file:
+    with open(f"filesCSV/arts{numFile}.csv", encoding="utf8") as csv_file:
         # Crea un objeto reader similar a un diccionario delimitado por la barra |
         listFile = csv.DictReader(csv_file, delimiter='|')
         bigFile = []

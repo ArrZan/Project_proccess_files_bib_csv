@@ -1,6 +1,7 @@
 import re
 import bibtexparser
 import unidecode as ud
+from thefuzz import fuzz
 
 # nomarRefSql = "archivos\\referenciasContar"
 
@@ -67,7 +68,7 @@ def addReference(refr, autorArt, anioArt):
     posLastAut = 0
 
     for author in authors:
-        posLastAut = posLastAut + len(author[0]) + 2
+        posLastAut = posLastAut + len(author[0]) + 1
 
     title = refr
 
@@ -91,15 +92,15 @@ def addReference(refr, autorArt, anioArt):
 
             title = refr[posYear:posEnd + posYear]
         else:
-            title = refr[posLastAut:posYear - 6]  # Restamos por el len de year
+            title = refr[posLastAut + 1:posYear - 6]  # Restamos por el len de year
     else:
         pruebas.append(refr)
 
     data['firstAuthor'] = primerAutor
     data['year'] = yearRef
-    data['refr'] = refr
+    data['title'] = title
     data['line'] = (f'"{anioArt}"|"{autorArt}"|"{yearRef}"|"{data["authors"][0]}"|"{data["authors"][-1]}"|'
-                    f'"{tempauts}"|"{conArc}"|"1"|"{refr}"|"{title}"\n')
+                    f'"{tempauts}"|"{conArc}"|"1"|"{refr}"')
 
     return data
 
@@ -146,28 +147,39 @@ def addReferenceWoS(refr, autorArt, anioArt):
     data["year"] = yearRef
     data["title"] = DOI
     data["line"] = (f'"{anioArt}"|"{autorArt}"|"{yearRef}"|"{autorRef}"|"{autorRef}"|"{autorRef}"|"{conArc}"|"1"'
-                    f'|"{refr}"|"{DOI}"\n')
+                    f'|"{refr}"')
 
     return data
 
 
 def groupingTitles(f_author, authors, year, title, f_lett):
+    authors = ", ".join(authors)
+
     if f_author != vacio:
-        if f_lett.lower() in index:
+        if f_lett in index:
             if f_author in index[f_lett]:
                 if year in index[f_lett][f_author]:
                     if authors in index[f_lett][f_author][year]:
-                        if title in index[f_lett][f_author][year][authors]:
-                            pass
 
-        # for letters in index:
-        #     if letters['indice'] == f_lett:
-        #         for authors_i in letters[f_lett]:
-        #             if authors_i['authors'] == f_author:
-        #     else:
+                        for titleIndex in index[f_lett][f_author][year][authors]:
 
-    # else:
-    # print(refr)
+                            if fuzz.token_sort_ratio(title, titleIndex) >= 94:
+                                return titleIndex
+                            else:
+                                index[f_lett][f_author][year][authors].append(title)
+
+                    else:
+                        index[f_lett][f_author][year][authors] = [title]
+                else:
+                    index[f_lett][f_author][year] = {authors: [title]}
+            else:
+                index[f_lett][f_author] = {year: {authors: [title]}}
+        else:
+            index[f_lett] = {f_author: {year: {authors: [title]}}}
+    else:
+        index['v'] = {vacio: {year: {authors: [title]}}}
+
+    return title
 
 
 '''/////////////////////////////////////////////// Codigo para leer un archivo bib, iterar cada articulo
@@ -181,26 +193,6 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
     # Genero el archivo y la cabecera para guardar toda la info
     with open(nomarRef + "1.csv", "w", encoding="utf-8") as arRef:
-        """ AÑADIR UNA NUEVA COLUMNA LLAMADA TITLE
-        
-            EXTRAER LA FRECUENCIA DE LOS TITULOS QUE SE REPITEN,
-            COMO TIENEN MINÚSCULAS Y MAYÚSCULAS, TILDES, YA QUE ESTAS
-            COMPLICAN A LA HORA DE VER QUE TANTO SE REPITEN.
-                        
-            Carl M., (2000) Agency Theory of last, CEO, california
-            Carl M., (2000) Agency Theory of Last, CEO, , america
-            Carl M., (2000) agency theory of last, Ceo, journal
-            Carl M., agency theory of last, Ceo (2000)
-            Famm S., Crish S., (1997) the firm of
-            Famm S., Crish S., the firm of (1997)
-            Famm S., Crish S., (1997) the Firm of, calif 
-            Famm S., Crish S., (1997) The Firm Of, cali
-            Bar C, the firm of (2000)
-            
-            VER QUE TANTO SE PARECEN UNAS CADENAS DE CARACTERES COMO LA DE ARRIBA
-            BUSCAR EL NIVEL DE SIMILITUD ENTRE REFERENCIAS PARA SACAR UNA FRECUENCIA.
-        
-        """
         arRef.write("yearArticle| authorArticle| year| authorFirst| authorLast|"
                     " authors| article| number| line| title\n")
 
@@ -250,19 +242,24 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
                         dataRef = addReference(refer, autorArt, yearArt)
 
                 # Añadimos la referencia al archivo
-                with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
-                    arRef.write(dataRef['line'])
 
                 # Proceso para titulos duplicados de las referencias de un artículo
                 # En algún momento si se ve necesario preguntaremos si queremos hacer este proceso u obviarlo,
                 # para disminuir tiempos.
 
                 # if decission:
-                # groupingTitles(dataRef['firstAuthor'], dataRef['authors'], dataRef['year'], dataRef['refr'],
-                #                dataRef['refr'][0])
+
+                titleLine = groupingTitles(dataRef['firstAuthor'], dataRef['authors'], dataRef['year'],
+                                           dataRef['title'],
+                                           dataRef['firstAuthor'][0])
+
+                with open(nomarRef + "1.csv", "a", encoding="utf-8") as arRef:
+                    arRef.write(f'{dataRef["line"]}|"{titleLine}"\n')
 
                 complRefArticle = round(conrefArticle / numRefArticle * 100, 2)
-                print(f"Artículo: {conArc}  |  referencias: {conrefArticle}/{numRefArticle}  |  {dataRef['firstAuthor']}")
+
+                print(
+                    f"Artículo: {conArc}  |  referencias: {conrefArticle}/{numRefArticle}  |  {dataRef['firstAuthor']}")
 
                 conrefArticle += 1
 
@@ -274,7 +271,7 @@ with open("merged.bib", encoding="utf-8") as bibtex_file:  # Variable que toma e
 
         conArc += 1
 
-print('Articulos: ', conArc-1)
+print('Articulos: ', conArc - 1)
 print('Artículos sin referencias: ', len(daniados))
 print('Referencias de artículos: ', numRefArts)
 
@@ -282,21 +279,21 @@ for pr in pruebas:
     print(pr)
 
 """/////////////////////////////"""
-print("*"*50, "\nREFERENCIAS EXTRAIDAS...[COMPLETADO]\n", "*"*50 ,"\n")
+print("*" * 50, "\nREFERENCIAS EXTRAIDAS...[COMPLETADO]\n", "*" * 50, "\n")
 """/////////////////////////////"""
 
 '''/////////////////////////////////////////////// Codigo para sacar los autores top.'''
 # Ordeno (sorted) el TopAuthors de mayor a menor por valor
 sortedAuthors = {key: value for key, value in sorted(TopAuthors.items(), key=lambda item: item[1], reverse=True)}
 
-# Creo el top donde guardaré los primeros 10 autores más referenciados
-Top10Authors = {}
-Top = 10  # Coloco el top que deseo, puede ser el top 100 o 5
+Top10Authors = {}  # Creo el diccionario donde guardaré el top de autores más referenciados
+Top = 10  # Coloco el limite que deseo, puede ser el top 100 o 5
 
 # Añado los 10 autores y su cantidad
 for key, quant in sortedAuthors.items():
-
+    # Comentar en cuyo caso no se desee sacar un top
     Top10Authors[key] = quant
+
     # Pregunto por el top
     # if len(Top10Authors) < Top:
     #     Top10Authors[key] = quant
@@ -305,7 +302,7 @@ for key, quant in sortedAuthors.items():
     #     break
 
 """/////////////////////////////"""
-print("*"*50, "\nTOP DE AUTORES...[COMPLETADO]\n", "*"*50 ,"\n")
+print("*" * 50, "\nTOP DE AUTORES...[COMPLETADO]\n", "*" * 50, "\n")
 """/////////////////////////////"""
 
 '''/////////////////////////////////////////////// Codigo para guardar el abstract de los 10 autores.'''
@@ -314,9 +311,16 @@ print("*"*50, "\nTOP DE AUTORES...[COMPLETADO]\n", "*"*50 ,"\n")
 abstractsAut = {}
 
 for article in listArticulos:
-    # Preguntamos si existe un abstract en el artículo
+    # Preguntamos si existe un abstract en el artículo<
     if 'abstract' in article:
         formatReferencia = quest_name_refer(article)
+
+        """ RECORDATORIO
+                Indicar el quartil dentro del diccionario,
+                dependiendo de cuál es se irá guardando en tal key del diccionario,
+                la estructura interna de {autor:content} sigue siendo el mismo.
+         """
+
         if formatReferencia:
             for autor in Top10Authors:
                 # Se pregunta si el autor iterado del Top está dentro de las referencias del artículo
@@ -325,19 +329,22 @@ for article in listArticulos:
                     codeArticle = ud.unidecode(article['code'])
                     abstractArticle = ud.unidecode(article['abstract'])
                     # Si existe se añadirá una  nueva referencia
-                    if autor in abstractsAut:
-                        abstractsAut[autor][1].update({codeArticle: abstractArticle})
+                    if article['quartil'] in abstractsAut:
+                        if autor in abstractsAut[article['quartil']]:
+                            abstractsAut[article['quartil']][autor][1].update({codeArticle: abstractArticle})
+                        else:
+                            # Si no, se lo crea
+                            abstractsAut[article['quartil']][autor] = [article['year'], {codeArticle: abstractArticle}]
+                            # articleExists = True
                     else:
-                        # Si no, se lo crea
-                        abstractsAut[autor] = [article['year'], {codeArticle: abstractArticle}]
-                        # articleExists = True
-
-        # file_Text.write("**** *")
+                        abstractsAut[article['quartil']] = {autor: [article['year'], {codeArticle: abstractArticle}]}
 
 
 # Ordeno un diccionario desordenado comparándolo con otro igual (llaves iguales) pero ordenado
 def sortDict(dictionary_ordered, dictionary_messy):
     orderedData = {}
+    """ Estamos uniendo los diccionarios Q1,Q2 ... undefined con |
+        No sé si dejarlo fuera o dentro de la función"""
     # Pregunto si tienen las mismas claves
     if set(dictionary_ordered.keys()) != set(dictionary_messy.keys()):
         return False
@@ -349,24 +356,34 @@ def sortDict(dictionary_ordered, dictionary_messy):
 
 
 abstractsAutOrder = sortDict(Top10Authors, abstractsAut)
+
 cont = 1
 if abstractsAutOrder:
     for key, content in abstractsAutOrder.items():
         abstracts = content[1]
         # Guardamos por cada autor los abstract en un solo archivo de texto
-        # with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
-        with open(f"FilesAbstracts/abstractALL.txt", "a", encoding="utf-8") as fileTxt:
-            # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
-            for key2, abstract in abstracts.items():
-                fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
-        cont += 1
+        try:
+            with open(f"FilesAbstracts/abstract_{key}_{cont}.txt", "a", encoding="utf-8") as fileTxt:
+                # with open(f"FilesAbstracts/abstractALL.txt", "a", encoding="utf-8") as fileTxt:
+                # print("*" * 10, f"{key} : {len(abstracts)}", "*" * 10)
+                for key2, abstract in abstracts.items():
+                    fileTxt.write(f"**** *ID_{key2}_{content[0]}_\n{abstract}\n")
+            cont += 1
+        except OSError as msg:
+            print(f"The following exception has occurred: {msg}\n")
+
 
 print("*" * 20, f"Reporte del Top de {Top} autores", "*" * 20)
 print("Autor | Conteo")
 for autor, conteo in Top10Authors.items():
     print(f"{autor}: {conteo}")
 
+"""
+    ¡Advertencia!
+    Hay ciertas referencias donde solo ponen un solo nombre del autor y en otras colocan los dos,
+    python comprende dos autores por separado cuando son la misma persona, REVISAR.
+"""
 
 """/////////////////////////////"""
-print("*"*50, "\nLISTA DE ABSTRACTS...[COMPLETADO]\n", "*"*50, "\n")
+print("*" * 50, "\nLISTA DE ABSTRACTS...[COMPLETADO]\n", "*" * 50, "\n")
 """/////////////////////////////"""

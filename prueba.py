@@ -4,6 +4,8 @@
 #     {'color': 'Azul', 'matricula': '2901-Z', 'cambio': 'M'},
 #     {'color': 'Gris', 'matricula': '1892-B', 'cambio': 'M'}
 # ]
+import csv
+
 import unidecode as ud
 import os
 
@@ -109,13 +111,19 @@ references = [
     "Bar C, the firm of (2000)"
 ]
 
-title = "the Firm of, (1997)"
-title2 = "Carl M., (2000) Agency Theory of last, CEO, california"
+title1 = "A behavioral theory of labor negotiation"
+title2 = "A Behavioral Theory of Labor Relations"
 
 # title = re.sub(r'[^\w\s]', '', title)
 # title2 = re.sub(r'[^\w\s]', '', title2)
+#
+# print(fuzz.ratio(title1, title2))
+# print(fuzz.partial_ratio(title1, title2))
+# print(fuzz.token_set_ratio(title1, title2))
+# print(fuzz.token_sort_ratio(title1, title2), "v")
+# print(fuzz.partial_token_sort_ratio(title1, title2), "v")
 
-print(fuzz.token_set_ratio(title.lower(), title2.lower()))
+""" Se escoge 94 como porcentaje para comparación de títulos """
 
 # # Función para encontrar títulos similares
 # def find_similar_titles(references):
@@ -149,7 +157,7 @@ import re
 vacio = "Vacio"
 
 """ Proceso para la tercera opción del titulo"""
-ref = "Himmelberg, C. P., Petersen, B. C., R & D and Internal Finance: A Panel Study of Small Firms in High-Tech Industries (1994) The Review of Economics and Statistics, 76 (1), pp. 38-51"
+# ref = "Himmelberg, C. P., Petersen, B. C., R & D and Internal Finance: A Panel Study of Small Firms in High-Tech Industries (1994) The Review of Economics and Statistics, 76 (1), pp. 38-51"
 
 # refMatch = re.search(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)), (.)+\(([1-2]\d{3})\)", ref)
 #
@@ -162,50 +170,73 @@ ref = "Himmelberg, C. P., Petersen, B. C., R & D and Internal Finance: A Panel S
 
 """Como estamos en prueba, debemos ver cuales valores no lee para adentrarlo en el patron"""
 
-
-# ref = "(1991) Measuring and controlling large credit exposures, , January 1991"
-
-refMatch = re.search(r"(([-\w'? ]+),\s(([A-Z-]\.?\s?)+)),", ref)
-
-# Extraemos el año siempre que sea mayor a 1000 o menor 2999
-yearExiste = re.search(r'\(([1-2]\d{3})\)', ref)
-
-# Si es None, pondrá vacio, si no tomará el año
-yearRef = vacio if yearExiste is None else yearExiste.group(1)
-
-
-authors = re.findall(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)),", ref)
-
-posLastAut = 0
-
-for author in authors:
-    posLastAut = posLastAut + len(author[0]) + 2
-
-posYear = yearExiste.regs[0][1]
-
-# Si el año está al comienzo... year, author, title
-if yearExiste.regs[0][0] == 0:
-    posComa = ref.find(",")
-    title = ref[posYear + 1:posComa]  # Sumamos 1 por la coma o espacio
-# Si el año está en la mitad... author, year, title
-elif "," in ref[posYear-9:posYear]:
-    if re.search(r',\s\d+\s\(\d+\)', ref) is not None:
-        posVolNum = re.search(r',\s\d+\s\(\d+\)', ref).group()
-        posEnd = ref[posYear:].find(posVolNum)
-    elif ", pp" in ref:
-        posEnd = ref[posYear:].find(", pp")
-    elif ", ," in ref:
-        posEnd = ref[posYear:].find(", ,")
-    else:
-        posEnd = ref[posYear:].find(",")
-
-    title = ref[posYear:posEnd+posYear]
-else:
-    title = ref[posLastAut:posYear-6]  # Restamos por el len de year
-
-print(title)
-print(authors)
-print(yearRef)
-print(ref)
+# # ref = "(1991) Measuring and controlling large credit exposures, , January 1991"
+#
+# refMatch = re.search(r"(([-\w'? ]+),\s(([A-Z-]\.?\s?)+)),", ref)
+#
+# # Extraemos el año siempre que sea mayor a 1000 o menor 2999
+# yearExiste = re.search(r'\(([1-2]\d{3})\)', ref)
+#
+# # Si es None, pondrá vacio, si no tomará el año
+# yearRef = vacio if yearExiste is None else yearExiste.group(1)
+#
+#
+# authors = re.findall(r"(([a-zA-ZÀ-ÿ-']+),\s(([A-Z].?\s?)+)),", ref)
+#
+# posLastAut = 0
+#
+# for author in authors:
+#     posLastAut = posLastAut + len(author[0]) + 2
+#
+# posYear = yearExiste.regs[0][1]
+#
+# # Si el año está al comienzo... year, author, title
+# if yearExiste.regs[0][0] == 0:
+#     posComa = ref.find(",")
+#     title = ref[posYear + 1:posComa]  # Sumamos 1 por la coma o espacio
+# # Si el año está en la mitad... author, year, title
+# elif "," in ref[posYear-9:posYear]:
+#     if re.search(r',\s\d+\s\(\d+\)', ref) is not None:
+#         posVolNum = re.search(r',\s\d+\s\(\d+\)', ref).group()
+#         posEnd = ref[posYear:].find(posVolNum)
+#     elif ", pp" in ref:
+#         posEnd = ref[posYear:].find(", pp")
+#     elif ", ," in ref:
+#         posEnd = ref[posYear:].find(", ,")
+#     else:
+#         posEnd = ref[posYear:].find(",")
+#
+#     title = ref[posYear:posEnd+posYear]
+# else:
+#     title = ref[posLastAut:posYear-6]  # Restamos por el len de year
+#
+# print(title)
+# print(authors)
+# print(yearRef)
+# print(ref)
 
 ""
+
+# index = {}
+# f_author = "amilton M"
+# authors = "amilton M"
+# f_lett = authors[0]
+# year = "1974"
+# index[f_lett] = {f_author: {year: {authors: []}}}
+# print(index)
+
+#
+# """ Vamos a comparar los datos del csv con el bib y guardar el tipo de Quartil que tiene """
+# with open("scimagojr 2022.csv", encoding="utf8") as csv_file:
+#     # Crea un objeto reader similar a un diccionario delimitado por la barra |
+#     listFile = csv.DictReader(csv_file, delimiter=';')
+#
+#     for row in listFile:
+#         print(row["Title"].upper())
+
+
+a = 1
+b = 2
+c = {a: {5: 5}, b: {1: 2}}
+c[a] |= c[b]
+print(c)

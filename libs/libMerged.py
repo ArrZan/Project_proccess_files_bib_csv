@@ -42,3 +42,9 @@ def keyDel(list1, list2):
             else:
                 list2[sentence.upper()] = list2[sentence.upper()] + 1
         return list2
+
+
+def union(key, entrykey):
+    s1 = '{0}='.format(key)
+    s3 = '{0}{{{1}}},'.format(s1, entrykey)
+    return s3 + '\n'
