@@ -74,9 +74,10 @@ def format_bibtex_entry(entry):
                 s += s3 + '\n'
 
     eissn = entry["eissn"] if "eissn" in entry else None
+    issn = entry["issn"] if "issn" in entry else None
 
     # We add a new field for quartiles :p
-    s += lm.union('Quartil', addQuartile(journal=entry["journal"], issn=entry["issn"], eissn=eissn))
+    s += lm.union('Quartil', addQuartile(journal=entry["journal"], issn=issn, eissn=eissn))
 
     keyword = 0
     keywords_plus = 0

@@ -292,14 +292,14 @@ Top = 10  # Coloco el limite que deseo, puede ser el top 100 o 5
 # Añado los 10 autores y su cantidad
 for key, quant in sortedAuthors.items():
     # Comentar en cuyo caso no se desee sacar un top
-    Top10Authors[key] = quant
+    # Top10Authors[key] = quant
 
     # Pregunto por el top
-    # if len(Top10Authors) < Top:
-    #     Top10Authors[key] = quant
-    # else:
-    #     # Salgo cuando los tenga a los 10
-    #     break
+    if len(Top10Authors) < Top:
+        Top10Authors[key] = quant
+    else:
+        # Salgo cuando los tenga a los 10
+        break
 
 """/////////////////////////////"""
 print("*" * 50, "\nTOP DE AUTORES...[COMPLETADO]\n", "*" * 50, "\n")
@@ -328,16 +328,46 @@ for article in listArticulos:
                     # Codigo y el abstracto convertido con unidecode
                     codeArticle = ud.unidecode(article['code'])
                     abstractArticle = ud.unidecode(article['abstract'])
-                    # Si existe se añadirá una  nueva referencia
-                    if article['quartil'] in abstractsAut:
-                        if autor in abstractsAut[article['quartil']]:
-                            abstractsAut[article['quartil']][autor][1].update({codeArticle: abstractArticle})
-                        else:
-                            # Si no, se lo crea
-                            abstractsAut[article['quartil']][autor] = [article['year'], {codeArticle: abstractArticle}]
-                            # articleExists = True
+
+                    # Anterior codigo
+                    if autor in abstractsAut:
+                        abstractsAut[autor][1].update({codeArticle: abstractArticle})
                     else:
-                        abstractsAut[article['quartil']] = {autor: [article['year'], {codeArticle: abstractArticle}]}
+                        # Si no, se lo crea
+                        abstractsAut[autor] = [article['year'], {codeArticle: abstractArticle}]
+                        # articleExists = True
+
+                    # # Si existe se añadirá una  nueva referencia (CODIGO NUEVO...
+                    # if article['quartil'] in abstractsAut:
+                    #     if autor in abstractsAut[article['quartil']]:
+                    #         abstractsAut[article['quartil']][autor][1].update({codeArticle: abstractArticle})
+                    #     else:
+                    #         # Si no, se lo crea
+                    #         abstractsAut[article['quartil']][autor] = [article['year'], {codeArticle: abstractArticle}]
+                    #         # articleExists = True
+                    # else:
+                    #     abstractsAut[article['quartil']] = {autor: [article['year'], {codeArticle: abstractArticle}]}
+                    # ...ACÁ TERMINA EL CODIGO NUEVO)
+        # else:
+        #
+        #     if "author" in article:
+        #         autor = article['author']
+        #     elif "authors" in article:
+        #         author = article['authors']
+        #     else:
+        #         author = article['code']
+        #
+        #     # Codigo y el abstracto convertido con unidecode
+        #     codeArticle = ud.unidecode(article['code'])
+        #     abstractArticle = ud.unidecode(article['abstract'])
+        #
+        #     # Anterior codigo
+        #     if autor in abstractsAut:
+        #         abstractsAut[autor][1].update({codeArticle: abstractArticle})
+        #     else:
+        #         # Si no, se lo crea
+        #         abstractsAut[autor] = [article['year'], {codeArticle: abstractArticle}]
+        #         # articleExists = True
 
 
 # Ordeno un diccionario desordenado comparándolo con otro igual (llaves iguales) pero ordenado
