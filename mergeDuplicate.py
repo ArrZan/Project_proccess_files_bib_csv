@@ -32,7 +32,7 @@ def addQuartile(journal, issn, eissn):
             if eissn and eissn.replace("-", "") == row["Issn"]:
                 return row["SJR Best Quartile"]
 
-            if journal.upper() == row["Title"].upper():
+            if journal and journal.upper() == row["Title"].upper():
                 return row["SJR Best Quartile"]
 
         return "Undefined"
@@ -75,9 +75,10 @@ def format_bibtex_entry(entry):
 
     eissn = entry["eissn"] if "eissn" in entry else None
     issn = entry["issn"] if "issn" in entry else None
+    journal = entry["journal"] if "journal" in entry else None
 
     # We add a new field for quartiles :p
-    s += lm.union('Quartil', addQuartile(journal=entry["journal"], issn=issn, eissn=eissn))
+    s += lm.union('Quartil', addQuartile(journal=journal, issn=issn, eissn=eissn))
 
     keyword = 0
     keywords_plus = 0
@@ -244,15 +245,38 @@ if os.path.exists('merged.bib'):
 """# /////////////////////////////////////////////// Este codigo es para quitar duplicados de un solo archivo"""
 with open('unidos.bib', encoding="utf-8") as bibtex_file:
     bib_database = bibtexparser.load(bibtex_file)
+    
+
+    """ COMPROBACIÓN DE NÚMERO DE ARTÍCULOS """ 
+    # entries_prub = bib_database.entries
+    # print("Entries: ")
+    # for entri in entries_prub:
+    #     print(entri)
+    # print(" "*100)
+    # print(" "*100)
+
+    # print("Cantidad de entries: {}".format(len(entries_prub)))
+
+    
+    """ COMPROBACIÓN DE UNA CANTIDA DE ARTÍCULOS PARA VER SU ESTRUCTURA """ 
     entries1 = bib_database.get_entry_list()
-print('Artículos: {0} entries in file'.format(len(entries1)))
+    # print('Artículos: {0} entries in file'.format(len(entries1)))
+
+
+
+
+
+
+# for i, entry in enumerate(entries1):
+   
+#     print(f"Entry {i + 1}: {entry}")
 
 # Se setea los títulos del archivo, quitando los repetidos
 titleEnt = list(set([entry['title'].upper() for entry in entries1]))
 print('Duplicados: {0} in file 1'.format(len(entries1) - len(titleEnt)))
 
 # Cantidad de titulos seteados
-print(len(titleEnt))
+print("Cantidad de titulos seteados: ", len(titleEnt))
 
 # Ordenamos los artículos por año de menor a mayor
 OrderEntrys = sorted(entries1, key=lambda artic: int(artic['year']))
